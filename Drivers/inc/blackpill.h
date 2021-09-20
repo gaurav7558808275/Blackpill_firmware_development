@@ -17,8 +17,7 @@
 #define DISABLE 		0
 #define SET				ENABLE
 #define RESET			DISABLE
-#define GPIO_PIN_SET	SET
-#define GPIO_PIN_RESET	RESET
+
 
 
 #define FLASH_BASE_ADDR				0X00800000UL    //FLASH ADDRESS - VALUE FROM DATASHEET
@@ -149,12 +148,12 @@ typedef struct
 #define	GPIOE_CLK_EN()				(RCC -> RCC_AHB1ENR |= (1<<4))
 #define	GPIOH_CLK_EN()				(RCC -> RCC_AHB1ENR |= (1<<7))
 
-#define GPIOA_CLK_DI()				(RCC-> RCC_AHB1RSTR |= (1<<0))
-#define GPIOB_CLK_DI()				(RCC-> RCC_AHB1RSTR |= (1<<1))
-#define GPIOC_CLK_DI()				(RCC-> RCC_AHB1RSTR |= (1<<2))
-#define GPIOD_CLK_DI()				(RCC-> RCC_AHB1RSTR |= (1<<3))
-#define GPIOE_CLK_DI()				(RCC-> RCC_AHB1RSTR |= (1<<4))
-#define GPIOH_CLK_DI()				(RCC-> RCC_AHB1RSTR |= (1<<7))
+#define GPIOA_CLK_RESET()				do {(RCC-> RCC_AHB1RSTR |= (1<<0));	(RCC-> RCC_AHB1RSTR &= ~(1<<0));} while(0) 	// C TECHNIQUE TO USE MULTIPLE LINE IS A SINGLE MACRO
+#define GPIOB_CLK_RESET()				do {(RCC-> RCC_AHB1RSTR |= (1<<1));	(RCC-> RCC_AHB1RSTR &= ~(1<<1));} while(0)
+#define GPIOC_CLK_RESET()				do {(RCC-> RCC_AHB1RSTR |= (1<<2));	(RCC-> RCC_AHB1RSTR &= ~(1<<2));} while(0)
+#define GPIOD_CLK_RESET()				do {(RCC-> RCC_AHB1RSTR |= (1<<3));	(RCC-> RCC_AHB1RSTR &= ~(1<<3));} while(0)
+#define GPIOE_CLK_RESET()				do {(RCC-> RCC_AHB1RSTR |= (1<<4));	(RCC-> RCC_AHB1RSTR &= ~(1<<4));} while(0)
+#define GPIOH_CLK_RESET()				do {(RCC-> RCC_AHB1RSTR |= (1<<5));	(RCC-> RCC_AHB1RSTR &= ~(1<<5));} while(0)
 
 
 

@@ -32,6 +32,10 @@
 #define GPIO_PORT_PP		11
 #define GPIO_PORT_PPPD		12
 
+#define GPIO_PIN_SET	SET
+#define GPIO_PIN_RESET	RESET
+
+#define GPIO_PIN_13 	13
 
 /*
  * GPIO CONFIGURATION STRUCTURE
@@ -69,13 +73,15 @@ void GPIO_Clock_EN(GPIO_Reg_Def *GPIO , uint8_t S_O_R);
 void GPIO_Init(GPIOx_Handle *GPIO_Handle);
 void GPIO_DeInit(GPIO_Reg_Def *GPIO);
 
-void GPIO_Read_Pin(GPIO_Reg_Def *GPIO , uint8_t PinNumber);
-void GPIO_Read_Port(GPIO_Reg_Def *GPIO);
-void GPIO_Write_Pin(GPIO_Reg_Def *GPIO , uint16_t Value);
+uint8_t GPIO_Read_Pin(GPIO_Reg_Def *GPIO , uint8_t PinNumber);
+uint16_t GPIO_Read_Port(GPIO_Reg_Def *GPIO);
+void GPIO_Write_Pin(GPIO_Reg_Def *GPIO , uint8_t Value, uint8_t Pin);
 void GPIO_Write_Port(GPIO_Reg_Def *GPIO, uint16_t Value);
-void Toggle_Pin(GPIO_Reg_Def *GPIO, uint8_t PinNumber);
+void GPIO_Toggle_Pin(GPIO_Reg_Def *GPIO, uint8_t PinNumber);
 
 void GPIO_IRQ_config(GPIO_Reg_Def *GPIO, uint8_t IRQPriority,uint8_t S_O_R);   // S_O_R IS SET OR RESET SHORTHAND USAGE
 void GPIO_IRQ_Handling(uint8_t PinNumber);
+
+void GPIO_Delay(uint8_t value);
 
 #endif /* DRIVERS_INC_GPIO_H_ */
