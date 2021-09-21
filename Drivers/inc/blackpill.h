@@ -17,7 +17,17 @@
 #define DISABLE 		0
 #define SET				ENABLE
 #define RESET			DISABLE
+/*-------------------------------------------------Processor specific details--------------------------------------------*/
 
+#define NVIC_ISER0		((__vol uint32_t *) 0xE000E100)
+#define NVIC_ISER1		((__vol uint32_t *) 0xE000E104)
+#define NVIC_ISER2		((__vol uint32_t *) 0xE000E108)
+#define NVIC_ISER3		((__vol uint32_t *) 0xE000E10c)
+
+#define NVIC_ICER0		((__vol uint32_t *) 0XE000E180)
+#define NVIC_ICER1		((__vol uint32_t *) 0XE000E184)
+#define NVIC_ICER2		((__vol uint32_t *) 0XE000E188)
+#define NVIC_ICER3		((__vol uint32_t *) 0XE000E18C)
 
 
 #define FLASH_BASE_ADDR				0X00800000UL    //FLASH ADDRESS - VALUE FROM DATASHEET
@@ -139,6 +149,42 @@ typedef struct
 
 #define RCC    		((RCC_Reg_Def *)RCC_BASE_ADDR)
 
+/*---------------------------------------------EXTERNAL INTTERUPT MEMORY STRUCTURE---------------------------------------------------------*/
+
+typedef struct
+{
+	uint32_t __vol EXTI_IMR;		//Interrupt mask register at OFFSET OXOO
+	uint32_t __vol EXTI_EMR;		//Event mask register AT OFFSET 0X04
+	uint32_t __vol EXTI_RTSR;		// Rising trigger selection register AT OFFSET 0X08
+	uint32_t __vol EXTI_FTSR;		//Falling trigger selection register at offset 0x0c
+	uint32_t __vol EXTI_SWIER;		//Software interrupt event register AT OFFSET 0X10
+	uint32_t __vol EXTI_PR;			// Pending Registor at offset 0x14
+
+}EXTI_Reg_Def;
+
+#define EXTI 		((EXTI_Reg_Def *)EXTI_BASE_ADDR)
+
+/*------------------------------------------------SYSCONFIG MEMORY STRUCTURE------------------------------------------------------------------*/
+#define SYSCFG_BASE_ADDR		(APB1_BASE_ADDR + 3800)
+typedef struct
+{
+	uint32_t __vol	SYSCFG_MEMRMP;		//SYSCFG memory remap register AT OFFSET 0X00
+	uint32_t __vol	SYSCFG_PMC;			// SYSCFG peripheral mode configuration register at offset 0x04
+	uint32_t __vol	SYSCFG_EXTICR1;		//SYSCFG external interrupt configuration register 1 at offset 0x08
+	uint32_t __vol	SYSCFG_EXTICR2;		//SYSCFG external interrupt configuration register 2 at offset 0x0c
+	uint32_t __vol	SYSCFG_EXTICR3;		//SYSCFG external interrupt configuration register 3 at offset 0x10
+	uint32_t __vol	SYSCFG_EXTICR4;		//SYSCFG external interrupt configuration register 4 at offset 0x14
+	uint32_t RESERVED1;					// reserved location at 0x18
+	uint32_t RESERVED2;					// RESERVED LOCATION AT 0X1C
+	uint32_t __vol	SYSCFG_CMPCR;
+
+}SYSCONFIG_Reg_Def;
+
+#define SYSCFG					((SYSCONFIG_Reg_Def*)SYSCFG_BASE_ADDR)
+#define SYSCFG_CLK_EN()			(RCC->RCC_APB2ENR |= (1<<14))
+
+
+
 /*----------------------------------------------CLOCK ENABLE AND DISABLE MACROS ------------------------------------------------------------*/
 
 #define GPIOA_CLK_EN()				(RCC -> RCC_AHB1ENR |= (1<<0))
@@ -148,12 +194,12 @@ typedef struct
 #define	GPIOE_CLK_EN()				(RCC -> RCC_AHB1ENR |= (1<<4))
 #define	GPIOH_CLK_EN()				(RCC -> RCC_AHB1ENR |= (1<<7))
 
-#define GPIOA_CLK_RESET()				do {(RCC-> RCC_AHB1RSTR |= (1<<0));	(RCC-> RCC_AHB1RSTR &= ~(1<<0));} while(0) 	// C TECHNIQUE TO USE MULTIPLE LINE IS A SINGLE MACRO
-#define GPIOB_CLK_RESET()				do {(RCC-> RCC_AHB1RSTR |= (1<<1));	(RCC-> RCC_AHB1RSTR &= ~(1<<1));} while(0)
-#define GPIOC_CLK_RESET()				do {(RCC-> RCC_AHB1RSTR |= (1<<2));	(RCC-> RCC_AHB1RSTR &= ~(1<<2));} while(0)
-#define GPIOD_CLK_RESET()				do {(RCC-> RCC_AHB1RSTR |= (1<<3));	(RCC-> RCC_AHB1RSTR &= ~(1<<3));} while(0)
-#define GPIOE_CLK_RESET()				do {(RCC-> RCC_AHB1RSTR |= (1<<4));	(RCC-> RCC_AHB1RSTR &= ~(1<<4));} while(0)
-#define GPIOH_CLK_RESET()				do {(RCC-> RCC_AHB1RSTR |= (1<<5));	(RCC-> RCC_AHB1RSTR &= ~(1<<5));} while(0)
+#define GPIOA_CLK_RESET()			do {(RCC-> RCC_AHB1RSTR |= (1<<0));	(RCC-> RCC_AHB1RSTR &= ~(1<<0));} while(0) 	// C TECHNIQUE TO USE MULTIPLE LINE IS A SINGLE MACRO
+#define GPIOB_CLK_RESET()			do {(RCC-> RCC_AHB1RSTR |= (1<<1));	(RCC-> RCC_AHB1RSTR &= ~(1<<1));} while(0)
+#define GPIOC_CLK_RESET()			do {(RCC-> RCC_AHB1RSTR |= (1<<2));	(RCC-> RCC_AHB1RSTR &= ~(1<<2));} while(0)
+#define GPIOD_CLK_RESET()			do {(RCC-> RCC_AHB1RSTR |= (1<<3));	(RCC-> RCC_AHB1RSTR &= ~(1<<3));} while(0)
+#define GPIOE_CLK_RESET()			do {(RCC-> RCC_AHB1RSTR |= (1<<4));	(RCC-> RCC_AHB1RSTR &= ~(1<<4));} while(0)
+#define GPIOH_CLK_RESET()			do {(RCC-> RCC_AHB1RSTR |= (1<<5));	(RCC-> RCC_AHB1RSTR &= ~(1<<5));} while(0)
 
 
 
