@@ -20,7 +20,7 @@
 /*-------------------------------------------------Processor specific details--------------------------------------------*/
 
 #define NVIC_ISER0		((__vol uint32_t *) 0xE000E100)
-#define NVIC_ISER1		((__vol uint32_t *) 0xE000E104)
+#define NVIC_ISER1		((__vol uint32_t *) 0xE000E104)		// TODO: TRY THE INTERRUPT LOGIC ON ISER AND ICER REGISTERS
 #define NVIC_ISER2		((__vol uint32_t *) 0xE000E108)
 #define NVIC_ISER3		((__vol uint32_t *) 0xE000E10c)
 
@@ -29,6 +29,8 @@
 #define NVIC_ICER2		((__vol uint32_t *) 0XE000E188)
 #define NVIC_ICER3		((__vol uint32_t *) 0XE000E18C)
 
+#define NVIC_IPR0				((__vol uint32_t *)0xE000E400)
+#define NO_OF_BIT_IMPLEMENTED 	4    // the last 4 bits in priorty register in not implemented so sifting is needed with respect to number of bits implemented
 
 #define FLASH_BASE_ADDR				0X00800000UL    //FLASH ADDRESS - VALUE FROM DATASHEET
 #define SRAM_BASE_ADDR				0X20000000UL	//SRAM ADDRESS - VALUE FROM DATASHEET
@@ -183,7 +185,14 @@ typedef struct
 #define SYSCFG					((SYSCONFIG_Reg_Def*)SYSCFG_BASE_ADDR)
 #define SYSCFG_CLK_EN()			(RCC->RCC_APB2ENR |= (1<<14))
 
-
+#define IRQ_N_EXTI0				6  // THESE VALUES ARE INTERRUPT VECTOR
+#define IRQ_N_EXTI1	 			7
+#define IRQ_N_EXTI2				8
+#define IRQ_N_EXTI3				9
+#define IRQ_N_EXTI4				10
+#define IRQ_N_EXTI9_5			23
+#define IRQ_N_EXTI15_10			40
+#define IRQ_N_EXTI17			41
 
 /*----------------------------------------------CLOCK ENABLE AND DISABLE MACROS ------------------------------------------------------------*/
 
@@ -193,6 +202,13 @@ typedef struct
 #define	GPIOD_CLK_EN()				(RCC -> RCC_AHB1ENR |= (1<<3))
 #define	GPIOE_CLK_EN()				(RCC -> RCC_AHB1ENR |= (1<<4))
 #define	GPIOH_CLK_EN()				(RCC -> RCC_AHB1ENR |= (1<<7))
+
+#define GPIOA_CLK_DI()				(RCC -> RCC_AHB1ENR &= ~(1<<0))
+#define	GPIOB_CLK_DI()				(RCC -> RCC_AHB1ENR &= ~(1<<1))
+#define	GPIOC_CLK_DI()				(RCC -> RCC_AHB1ENR &= ~(1<<2))
+#define	GPIOD_CLK_DI()				(RCC -> RCC_AHB1ENR &= ~(1<<3))
+#define	GPIOE_CLK_DI()				(RCC -> RCC_AHB1ENR &= ~(1<<4))
+#define	GPIOH_CLK_DI()				(RCC -> RCC_AHB1ENR &= ~(1<<7))
 
 #define GPIOA_CLK_RESET()			do {(RCC-> RCC_AHB1RSTR |= (1<<0));	(RCC-> RCC_AHB1RSTR &= ~(1<<0));} while(0) 	// C TECHNIQUE TO USE MULTIPLE LINE IS A SINGLE MACRO
 #define GPIOB_CLK_RESET()			do {(RCC-> RCC_AHB1RSTR |= (1<<1));	(RCC-> RCC_AHB1RSTR &= ~(1<<1));} while(0)

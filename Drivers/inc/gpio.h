@@ -20,21 +20,24 @@
 #define GPIO_MODE_IT_FT		14			// INTERRUPT MODE INPUT MODE FALLIN TRIGGER
 #define GPIO_MODE_IT_RFT	15			// INTERUPT MODE INUT MODE RISING AND FALLIN TRIGGER
 //GPIO AVAILABLE OUTPUT MODES
-#define GPIO_MODE_OUT_PP	4			// OUTPUT PUHSPULL MODE
-#define GPIO_MODE_OUT_OD	5			// OUTPUT OPEN DRAIN MODE
+#define GPIO_MODE_OUT_PP	0			// OUTPUT PUHSPULL MODE
+#define GPIO_MODE_OUT_OD	1			// OUTPUT OPEN DRAIN MODE
 //GPIO AVAILABLE SPEED
-#define GPIO_SPEED_LOW		6
-#define GPIO_SPEED_MED		7
-#define GPIO_SPEED_FAST		8
-#define GPIO_SPEED_HIGH		9
+#define GPIO_SPEED_LOW		0
+#define GPIO_SPEED_MED		1
+#define GPIO_SPEED_FAST		2
+#define GPIO_SPEED_HIGH		3
 //GPIO PORT PUSH PULL MACROS
-#define GPIO_PORT_N_PP		10
-#define GPIO_PORT_PP		11
-#define GPIO_PORT_PPPD		12
+#define GPIO_PORT_N_PP		0			// GPIO PORT NO PUSH PULL
+#define GPIO_PORT_UP		1			// GPIO PORT WITH PULL UP
+#define GPIO_PORT_DN		2			// GPIO PORT WITH PULL DOWN
+
+
 
 #define GPIO_PIN_SET	SET
 #define GPIO_PIN_RESET	RESET
 
+#define GPIO_PIN_0		0
 #define GPIO_PIN_1		1
 #define GPIO_PIN_2		2
 #define GPIO_PIN_3 		3
@@ -100,9 +103,9 @@ void GPIO_Write_Pin(GPIO_Reg_Def *GPIO , uint8_t Value, uint8_t Pin);
 void GPIO_Write_Port(GPIO_Reg_Def *GPIO, uint16_t Value);
 void GPIO_Toggle_Pin(GPIO_Reg_Def *GPIO, uint8_t PinNumber);
 
-void GPIO_IRQ_config(uint8_t IRQ_Number, uint8_t IRQPriority,uint8_t S_O_R);   // S_O_R IS SET OR RESET SHORTHAND USAGE
+void GPIO_IRQ_IT_config(uint8_t IRQ_Number, uint8_t S_O_R);   // S_O_R IS SET OR RESET SHORTHAND USAGE
 void GPIO_IRQ_Handling(uint8_t PinNumber);
-
+void GPIO_Priority_Config(uint8_t number , uint32_t priority);
 void GPIO_Delay(uint32_t value); // delay Function
 
 #endif /* DRIVERS_INC_GPIO_H_ */
