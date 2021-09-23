@@ -29,7 +29,7 @@
 int main(void)
 {
     /* Loop forever */
-
+/*
 	GPIOx_Handle gpio_led, button;
 	gpio_led.pGPIOx = GPIOC;
 	gpio_led.GPIO_Pin_config.GPIO_PinNumber = GPIO_PIN_13;
@@ -39,23 +39,25 @@ int main(void)
 
 	GPIO_Clock_EN(gpio_led.pGPIOx ,ENABLE);
 	GPIO_Init(&gpio_led);
-
+*/
+	GPIOx_Handle button;
 	button.pGPIOx = GPIOA;
 	button.GPIO_Pin_config.GPIO_PinNumber = GPIO_PIN_12;
 	button.GPIO_Pin_config.GPIO_PinMode = GPIO_MODE_IT_FT;
 	button.GPIO_Pin_config.GPIO_PinPuPdcontrol = GPIO_PORT_UP;
 	button.GPIO_Pin_config.GPIO_PinSpeed = GPIO_SPEED_HIGH;
 
-	GPIO_Clock_EN(button.pGPIOx  , ENABLE);
+	GPIO_Clock_EN(button.pGPIOx , ENABLE);
 	GPIO_Init(&button);
 
 	GPIO_IRQ_IT_config(IRQ_N_EXTI15_10, ENABLE);
-	GPIO_IRQ_Handling(12);
+	//GPIO_IRQ_Handling(12);
+	GPIO_Priority_Config(IRQ_N_EXTI15_10, 3);
 
 	while(1)
 	{
-		GPIO_Toggle_Pin(GPIOC, GPIO_PIN_13);
-		GPIO_Delay(20);
+		//GPIO_Toggle_Pin(GPIOC, GPIO_PIN_13);
+		//GPIO_Delay(200);
 	}
 
 

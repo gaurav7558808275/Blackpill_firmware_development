@@ -105,7 +105,7 @@ void GPIO_Toggle_Pin(GPIO_Reg_Def *GPIO, uint8_t PinNumber);
 
 void GPIO_IRQ_IT_config(uint8_t IRQ_Number, uint8_t S_O_R);   // S_O_R IS SET OR RESET SHORTHAND USAGE
 void GPIO_IRQ_Handling(uint8_t PinNumber);
-void GPIO_Priority_Config(uint8_t number , uint32_t priority);
+void GPIO_Priority_Config(uint8_t IRQ_number , uint32_t priority);
 void GPIO_Delay(uint32_t value); // delay Function
 
 #endif /* DRIVERS_INC_GPIO_H_ */

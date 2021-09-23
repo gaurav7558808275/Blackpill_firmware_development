@@ -35,7 +35,7 @@ void GPIO_Toggle_Pin(GPIO_Reg_Def *GPIO, uint8_t PinNumber);
 
 void GPIO_IRQ_IT_config(uint8_t IRQ_Number,uint8_t S_O_R);   // S_O_R IS SET OR RESET SHORTHAND USAGE
 void GPIO_IRQ_Handling(uint8_t PinNumber);
-void GPIO_Priority_Config(uint8_t number , uint32_t priority);
+void GPIO_Priority_Config(uint8_t IRQ_number , uint32_t priority);
 
 
 void GPIO_Delay(uint32_t value);
@@ -381,13 +381,13 @@ if (S_O_R == ENABLE)
 
 }
 
-void GPIO_Priority_Config(uint8_t number , uint32_t priority)
+void GPIO_Priority_Config(uint8_t IRQ_number , uint32_t priority)
 {
-	uint8_t iprx = number/8;
-	uint8_t iprx_section = number%4;
-	uint8_t shift_amount = (8 * iprx_section) + (8- NO_OF_BIT_IMPLEMENTED);
+	uint8_t iprx = IRQ_number/8;   	// TO FIND THE WHICH REGISTER OF PRI
+	uint8_t iprx_section = IRQ_number % 4;		// THIS IS USED TO FIND THE SECTION THAT THE DTAA WILL BE UPDATED
+	uint8_t shift_amount = (8 * iprx_section) + (8 - NO_OF_BIT_IMPLEMENTED);	// IN THE IPR LAST 4 BITS ARE INGNORED
 
-	*(NVIC_IPR0 + (iprx*4)) |= (priority << (shift_amount)); // SETS ALL THE 8 BIT REGISTER TO THEREQUIRED VALUE
+	*(NVIC_IPR0 + iprx) |= (priority << (shift_amount)); // SETS ALL THE 8 BIT REGISTER TO THE REQUIRED VALUE(PRIORITY)
 
 
 }
