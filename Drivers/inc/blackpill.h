@@ -57,26 +57,34 @@
 #define GPIOH_BASE_ADDR				0x40021C00UL
 
 /*------------------------------ PERIPHERALS ON APB2 PERIPHERALS-------------------------------------------------*/
+/*  REFERENCE MANUAL -> MEMORY MAP */
+#define USART1_BASE_ADDR 			0x40011000UL
+#define USART6_BASE_ADDR			0x40011400UL 			// UARTS
 
-#define USART1_BASE_ADDR 			0x40011000UL    /*  REFERENCE MANUAL -> MEMORY MAP */
-#define USART6_BASE_ADDR			0x40011400UL
 #define SPI1_BASE_ADDR				0x40013000UL
-#define I2S1_BASE_ADDR				SPI1_BASE_ADDR
-#define SPI4_BASE_ADDR				0x40013400UL
-#define I2S4_BASE_ADDR				SPI4_BASE_ADDR
-#define EXTI_BASE_ADDR				0x40013C00UL
+#define SPI4_BASE_ADDR				0x40013400UL			// SPI's
 #define SPI5_BASE_ADDR				0x40015000UL
+
+#define I2S1_BASE_ADDR				SPI1_BASE_ADDR
+#define I2S4_BASE_ADDR				SPI4_BASE_ADDR			// I2S's
 #define I2S5_BASE_ADDR				SPI5_BASE_ADDR
+
+#define EXTI_BASE_ADDR				0x40013C00UL
+
+
 
 /*----------------------------------APB1 PERIPHERALS------------------------------------------------------------*/
 
+#define UART2_BASE_ADDR				0x40004400UL		// UART's
+
 #define SPI2_BASE_ADDR				0x40003800UL
+#define SPI3_BASE_ADDR				0x40003C00UL		// SPI's
+
 #define I2S2_BASE_ADDR				SPI2_BASE_ADDR
-#define SPI3_BASE_ADDR				0x40003C00UL
-#define I2S3_BASE_ADDR				SPI3_BASE_ADDR
-#define UART2_BASE_ADDR				0x40004400UL
+#define I2S3_BASE_ADDR				SPI3_BASE_ADDR		// I2S's
+
 #define I2C1_BASE_ADDR				0x40004400UL
-#define I2C2_BASE_ADDR				0x40005400UL
+#define I2C2_BASE_ADDR				0x40005400UL		// I2C's
 #define I2C3_BASE_ADDR				0x40005800UL
 
 /*-------------------------------------GPIO PERIPHERAL STRUCTURE-----------------------------------------------*/
@@ -96,7 +104,7 @@ typedef struct
 
 }GPIO_Reg_Def;
 
-/*--------------------------------------------------GPIO STRUCTURE INTILIZATION----------------------------------*/
+/*--------------------------------------------------GPIO STRUCTURE PEIPHERAL DECLARATION ----------------------------------*/
 
 #define GPIOA 			((GPIO_Reg_Def*)GPIOA_BASE_ADDR)
 #define GPIOB 			((GPIO_Reg_Def*)GPIOB_BASE_ADDR)
@@ -104,6 +112,29 @@ typedef struct
 #define GPIOD 			((GPIO_Reg_Def*)GPIOD_BASE_ADDR)
 #define GPIOE 			((GPIO_Reg_Def*)GPIOE_BASE_ADDR)
 #define GPIOH 			((GPIO_Reg_Def*)GPIOH_BASE_ADDR)
+
+/*----------------------------------------------GPIO CLOCK ENABLE/DISABLE MACRO------------------------------------------------*/
+
+#define GPIOA_CLK_EN()				(RCC -> RCC_AHB1ENR |= (1<<0))
+#define	GPIOB_CLK_EN()				(RCC -> RCC_AHB1ENR |= (1<<1))
+#define	GPIOC_CLK_EN()				(RCC -> RCC_AHB1ENR |= (1<<2))
+#define	GPIOD_CLK_EN()				(RCC -> RCC_AHB1ENR |= (1<<3))
+#define	GPIOE_CLK_EN()				(RCC -> RCC_AHB1ENR |= (1<<4))
+#define	GPIOH_CLK_EN()				(RCC -> RCC_AHB1ENR |= (1<<7))
+
+#define GPIOA_CLK_DI()				(RCC -> RCC_AHB1ENR &= ~(1<<0))
+#define	GPIOB_CLK_DI()				(RCC -> RCC_AHB1ENR &= ~(1<<1))
+#define	GPIOC_CLK_DI()				(RCC -> RCC_AHB1ENR &= ~(1<<2))
+#define	GPIOD_CLK_DI()				(RCC -> RCC_AHB1ENR &= ~(1<<3))
+#define	GPIOE_CLK_DI()				(RCC -> RCC_AHB1ENR &= ~(1<<4))
+#define	GPIOH_CLK_DI()				(RCC -> RCC_AHB1ENR &= ~(1<<7))
+
+#define GPIOA_CLK_RESET()			do {(RCC-> RCC_AHB1RSTR |= (1<<0));	(RCC-> RCC_AHB1RSTR &= ~(1<<0));} while(0) 	// C TECHNIQUE TO USE MULTIPLE LINE IS A SINGLE MACRO
+#define GPIOB_CLK_RESET()			do {(RCC-> RCC_AHB1RSTR |= (1<<1));	(RCC-> RCC_AHB1RSTR &= ~(1<<1));} while(0)
+#define GPIOC_CLK_RESET()			do {(RCC-> RCC_AHB1RSTR |= (1<<2));	(RCC-> RCC_AHB1RSTR &= ~(1<<2));} while(0)
+#define GPIOD_CLK_RESET()			do {(RCC-> RCC_AHB1RSTR |= (1<<3));	(RCC-> RCC_AHB1RSTR &= ~(1<<3));} while(0)
+#define GPIOE_CLK_RESET()			do {(RCC-> RCC_AHB1RSTR |= (1<<4));	(RCC-> RCC_AHB1RSTR &= ~(1<<4));} while(0)
+#define GPIOH_CLK_RESET()			do {(RCC-> RCC_AHB1RSTR |= (1<<5));	(RCC-> RCC_AHB1RSTR &= ~(1<<5));} while(0)
 
 /*------------------------------------------ RCC REGISTER INITIALISATION --------------------------------------------------*/
 
@@ -167,6 +198,7 @@ typedef struct
 #define EXTI 		((EXTI_Reg_Def *)EXTI_BASE_ADDR)
 
 /*------------------------------------------------SYSCONFIG MEMORY STRUCTURE------------------------------------------------------------------*/
+
 #define SYSCFG_BASE_ADDR		(APB1_BASE_ADDR + 3800)
 typedef struct
 {
@@ -184,8 +216,8 @@ typedef struct
 
 #define SYSCFG					((SYSCONFIG_Reg_Def*)SYSCFG_BASE_ADDR)
 #define SYSCFG_CLK_EN()			(RCC->RCC_APB2ENR |= (1<<14))
-
-#define IRQ_N_EXTI0				6  // THESE VALUES ARE INTERRUPT VECTOR
+				// THESE VALUES ARE VLAUES OF INTERRUPT VECTOR VAILBALE ON THE VECTOR TABLE OF REFERENCE MANUAL.
+#define IRQ_N_EXTI0				6
 #define IRQ_N_EXTI1	 			7
 #define IRQ_N_EXTI2				8
 #define IRQ_N_EXTI3				9
@@ -194,30 +226,78 @@ typedef struct
 #define IRQ_N_EXTI15_10			40
 #define IRQ_N_EXTI17			41
 
-/*----------------------------------------------CLOCK ENABLE AND DISABLE MACROS ------------------------------------------------------------*/
+/*--------------------------------------------------------SPI PHERIPHERAL STRUCTURE ---------------------------------------------------------*/
 
-#define GPIOA_CLK_EN()				(RCC -> RCC_AHB1ENR |= (1<<0))
-#define	GPIOB_CLK_EN()				(RCC -> RCC_AHB1ENR |= (1<<1))
-#define	GPIOC_CLK_EN()				(RCC -> RCC_AHB1ENR |= (1<<2))
-#define	GPIOD_CLK_EN()				(RCC -> RCC_AHB1ENR |= (1<<3))
-#define	GPIOE_CLK_EN()				(RCC -> RCC_AHB1ENR |= (1<<4))
-#define	GPIOH_CLK_EN()				(RCC -> RCC_AHB1ENR |= (1<<7))
+typedef struct
+{
+	uint32_t	SPI_CR1;		// Info from reference manual
+	uint32_t	RESERVED0;
+	uint32_t	SPI_SR;
+	uint32_t	SPI_DR;
+	uint32_t	SPI_CRCPR;
+	uint32_t	SPIRXCRCR;
+	uint32_t	SPITXCRCR;
+	uint32_t 	SPI_I2SCFGR;
+	uint32_t	SPI_I2CPR;
 
-#define GPIOA_CLK_DI()				(RCC -> RCC_AHB1ENR &= ~(1<<0))
-#define	GPIOB_CLK_DI()				(RCC -> RCC_AHB1ENR &= ~(1<<1))
-#define	GPIOC_CLK_DI()				(RCC -> RCC_AHB1ENR &= ~(1<<2))
-#define	GPIOD_CLK_DI()				(RCC -> RCC_AHB1ENR &= ~(1<<3))
-#define	GPIOE_CLK_DI()				(RCC -> RCC_AHB1ENR &= ~(1<<4))
-#define	GPIOH_CLK_DI()				(RCC -> RCC_AHB1ENR &= ~(1<<7))
+}SPI_RegDef_t;
 
-#define GPIOA_CLK_RESET()			do {(RCC-> RCC_AHB1RSTR |= (1<<0));	(RCC-> RCC_AHB1RSTR &= ~(1<<0));} while(0) 	// C TECHNIQUE TO USE MULTIPLE LINE IS A SINGLE MACRO
-#define GPIOB_CLK_RESET()			do {(RCC-> RCC_AHB1RSTR |= (1<<1));	(RCC-> RCC_AHB1RSTR &= ~(1<<1));} while(0)
-#define GPIOC_CLK_RESET()			do {(RCC-> RCC_AHB1RSTR |= (1<<2));	(RCC-> RCC_AHB1RSTR &= ~(1<<2));} while(0)
-#define GPIOD_CLK_RESET()			do {(RCC-> RCC_AHB1RSTR |= (1<<3));	(RCC-> RCC_AHB1RSTR &= ~(1<<3));} while(0)
-#define GPIOE_CLK_RESET()			do {(RCC-> RCC_AHB1RSTR |= (1<<4));	(RCC-> RCC_AHB1RSTR &= ~(1<<4));} while(0)
-#define GPIOH_CLK_RESET()			do {(RCC-> RCC_AHB1RSTR |= (1<<5));	(RCC-> RCC_AHB1RSTR &= ~(1<<5));} while(0)
+		// Structure peripheral declaration macro
+#define SPI1	((SPI_RegDef_t *)SPI1_BASE_ADDR)
+#define SPI2	((SPI_RegDef_t *)SPI2_BASE_ADDR)
+#define SPI3	((SPI_RegDef_t *)SPI3_BASE_ADDR)
+#define SPI4	((SPI_RegDef_t *)SPI4_BASE_ADDR)
+#define SPI5	((SPI_RegDef_t *)SPI5_BASE_ADDR)
 
+		// SPI Clock initialization macros
+#define SPI1_Clock_Init()		(RCC->RCC_APB2ENR |= (1 << 12))		// Info  from reference manual
+#define SPI2_Clock_Init()		(RCC->RCC_APB1ENR |= (1 << 14))
+#define SPI3_Clock_Init()		(RCC->RCC_APB1ENR |= (1 << 15))
+#define SPI4_Clock_Init()		(RCC->RCC_APB2ENR |= (1 << 13))
+#define SPI5_Clock_Init()		(RCC->RCC_APB2ENR |= (1 << 20))
 
+		// SPI clock De-initialize macro
+#define SPI1_Clock_De()			(RCC->RCC_APB2ENR &= ~(1 << 12))		// Info  from reference manual
+#define SPI2_Clock_De()			(RCC->RCC_APB1ENR &= ~(1 << 14))
+#define SPI3_Clock_De()			(RCC->RCC_APB1ENR &= ~(1 << 15))
+#define SPI4_Clock_De()			(RCC->RCC_APB2ENR &= ~(1 << 13))
+#define SPI5_Clock_De()			(RCC->RCC_APB2ENR &= ~(1 << 20))
+
+		// SPI_Config_t ->@SPI_MODE
+#define SPI_MODE_MASTER		0		// Master Mode
+#define SPI_MODE_SLAVE		1		// Slave mode
+		// SPI_Config_t -> @SPI_Bus_Config
+#define SPI_BUS_CONFIG_FD			0	// full duplex mode
+#define SPI_BUS_CONFIG_HD			1	// Half duplex mode
+#define SPI_BUS_CONFIG_SIMPLEX_TX	2	// simplex with send only
+#define SPI_BUS_CONFIG_SIMPLEX_RX	3	// simplex with recieve only
+
+#define SPI_BUS_BIDIMODE_0	0			// Check CR1_register from reference manual for clarity.
+#define SPI_BUS_BIDIMODE_1	1
+
+		//SPI_Config_t -> @SPI_Clk_Speed
+#define SPI_CLOCK_SPEED_DIV2		0	// check baud rate control register in SPI_CR1
+#define SPI_CLOCK_SPEED_DIV4		1
+#define SPI_CLOCK_SPEED_DIV8		2
+#define SPI_CLOCK_SPEED_DIV16		3
+#define SPI_CLOCK_SPEED_DIV32		4
+#define SPI_CLOCK_SPEED_DIV64		5
+#define SPI_CLOCK_SPEED_DIV128		6
+#define SPI_CLOCK_SPEED_DIV256		7
+	// SPI_Config_t -> @SPI_Dff
+#define SPI_DFF_8BIT				0	// 8bit mode
+#define SPI_DFF_16BIT				1	// 16bit mode
+	// SPI_Config-> @SPI_CPOL
+#define SPI_CPOL_0					0	//idle at 0
+#define SPI_CPOL_1					1	// idle at 1
+	//SPI_Config-> SPI_CPHA
+#define SPI_CPHA_0					0	// first clock transition
+#define SPI_CPHA_1					1	// 2nd clock transition
+		//SPI_Config-> SPI_SSM
+#define SPI_SSM_DI					0	// Software slave management disabled
+#define SPI_SSM_EN					1	//software slave management enabled
+
+#define SPI1_Clock_Reset()			{RCC->RCC_APB2ENR |= (1<<12); RCC->RCC_APB2ENR &= ~(1<<12)}while(0)
 
 
 
