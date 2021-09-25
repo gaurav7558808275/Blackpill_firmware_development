@@ -297,8 +297,10 @@ typedef struct
 #define SPI_SSM_DI					0	// Software slave management disabled
 #define SPI_SSM_EN					1	//software slave management enabled
 
-#define SPI1_Clock_Reset()			{RCC->RCC_APB2ENR |= (1<<12); RCC->RCC_APB2ENR &= ~(1<<12)}while(0)
-
-
+#define SPI1_Clock_Reset()			do{RCC->RCC_APB2RSTR |= (1<<12); RCC->RCC_APB2RSTR &= ~(1<<12);} while(0)
+#define SPI2_Clock_Reset()			do{RCC->RCC_APB1RSTR |= (1<<14); RCC->RCC_APB1RSTR &= ~(1<<14);} while(0)
+#define SPI3_Clock_Reset()			do{RCC->RCC_APB1RSTR |= (1<<15); RCC->RCC_APB1RSTR &= ~(1<<15);} while(0)
+#define SPI4_Clock_Reset()			do{RCC->RCC_APB2RSTR |= (1<<13); RCC->RCC_APB2RSTR &= ~(1<<13);} while(0)
+#define SPI5_Clock_Reset()			do{RCC->RCC_APB2RSTR |= (1<<20); RCC->RCC_APB2RSTR &= ~(1<<20);} while(0)
 
 #endif /* DRIVERS_INC_BLACKPILL_H_ */

@@ -37,8 +37,8 @@ void SPI_Clock_DE(SPI_RegDef_t *pSPIx);	// SPI clock deinit
 void SPI_Init(SPI_Handle_t *SPI_Handle);
 void SPI_Deinit(SPI_Handle_t *SPI_Handle);
 
-void SPI_Send(SPI_RegDef_t pSPIx, uint8_t *tx_buff , uint32_t length);
-void SPI_Receive(SPI_RegDef_t pSPIx, uint8_t *rx_buff , uint32_t length);
+void SPI_Send(SPI_RegDef_t * pSPIx, uint8_t *tx_buff , uint32_t length);
+void SPI_Receive(SPI_RegDef_t *pSPIx, uint8_t *rx_buff , uint32_t length);
 
 void SPI_IRQ_IT_config(uint8_t IRQ_Number, uint8_t S_O_R);  // SET OR RESET
 void SPI_IRQ_Handling(SPI_Handle_t *P_handle);

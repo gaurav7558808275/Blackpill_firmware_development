@@ -91,6 +91,8 @@ void GPIO_Clock_EN(GPIO_Reg_Def *GPIO , uint8_t S_O_R)
 
 void GPIO_Init(GPIOx_Handle *GPIO_Handle)
 {
+	// clock enable for respective peripheral
+	GPIO_Clock_EN(GPIO_Handle->pGPIOx,ENABLE);
 
 	// configuration of gpio pin config
 	if(GPIO_Handle->GPIO_Pin_config.GPIO_PinMode <= 3)
@@ -306,7 +308,7 @@ void GPIO_DeInit(GPIO_Reg_Def *GPIO)
 uint8_t GPIO_Read_Pin(GPIO_Reg_Def *GPIO , uint8_t PinNumber)
 {
 	uint8_t data = 0;
-	data = (GPIO->IDR>>PinNumber) & (0x00000001);
+	data = (GPIO->IDR >> PinNumber) & (0x00000001);
 	return data;
 }
 
@@ -319,7 +321,7 @@ uint16_t GPIO_Read_Port(GPIO_Reg_Def *GPIO)
 
 void GPIO_Write_Pin(GPIO_Reg_Def *GPIO , uint8_t Value, uint8_t Pin)
 {
-	if(Value ==GPIO_PIN_SET)
+	if(Value == GPIO_PIN_SET)
 		{GPIO->ODR |= 1 << Pin;}
 	else if(Value == GPIO_PIN_RESET)
 		{GPIO->ODR &=(1 << Pin);}

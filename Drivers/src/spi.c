@@ -13,8 +13,8 @@ void SPI_Clock_DE(SPI_RegDef_t *pSPIx);	// SPI clock deinit
 void SPI_Init(SPI_Handle_t *SPI_Handle);
 void SPI_Deinit(SPI_Handle_t *SPI_Handle);
 
-void SPI_Send(SPI_RegDef_t pSPIx, uint8_t *tx_buff , uint32_t length);
-void SPI_Receive(SPI_RegDef_t pSPIx, uint8_t *rx_buff , uint32_t length);
+void SPI_Send(SPI_RegDef_t *pSPIx, uint8_t *tx_buff , uint32_t length);
+void SPI_Receive(SPI_RegDef_t *pSPIx, uint8_t *rx_buff , uint32_t length);
 
 void SPI_IRQ_IT_config(uint8_t IRQ_Number, uint8_t S_O_R);  // SET OR RESET
 void SPI_IRQ_Handling(SPI_Handle_t *P_handle);
@@ -75,6 +75,7 @@ void SPI_Clock_DE(SPI_RegDef_t *pSPIx)
 void SPI_Init(SPI_Handle_t *SPI_Handle)
 
 {
+	SPI_Clock_EN(SPI_Handle->pSPIx);
 			// SPI_Mode check
 	if(SPI_Handle->SPI_Config.SPI_MODE == SPI_MODE_MASTER )
 		{
@@ -175,7 +176,53 @@ void SPI_Init(SPI_Handle_t *SPI_Handle)
 			SPI_Handle->pSPIx->SPI_CR1 |= (1<<9);
 		}
 }
+ void SPI_Deinit(SPI_Handle_t *SPI_Handle)
+{
+	 if(SPI_Handle->pSPIx == SPI1)
+	 	 {
+		 SPI1_Clock_Reset();
+	 	 }
+	 else if(SPI_Handle->pSPIx == SPI2)
+		 {
+			 SPI2_Clock_Reset();
+		 }
+	 else if(SPI_Handle->pSPIx == SPI3)
+	 		 {
+	 			 SPI3_Clock_Reset();
+	 		 }
+	 else if(SPI_Handle->pSPIx == SPI4)
+	 		 {
+	 			 SPI4_Clock_Reset();
+	 		 }
+	 else if(SPI_Handle->pSPIx == SPI5)
+	 		 {
+	 			 SPI5_Clock_Reset();
+	 		 }
+}
 
-
-
+ void SPI_Send(SPI_RegDef_t *pSPIx, uint8_t *tx_buff , uint32_t length)    // polling method
+ {
+	 uint32_t TX_mask = 1UL;
+	 while(length > 0)
+	 {
+		 // check the tx status
+		 while(!(pSPIx->SPI_SR & TX_mask));   //TODO implement using function
+		 // check the dff bit field
+		 if(pSPIx->SPI_CR1 & (1<11))
+		 {
+			 // load 16 bit data
+			 pSPIx->SPI_DR = *((uint16_t *)tx_buff);
+			 length--;
+			 length--;
+			 (uint16_t*)tx_buff++;
+		 }
+		 else
+		 {
+			 	 // load 8 bit data
+			 pSPIx->SPI_DR = *tx_buff;
+			 length --;
+			 tx_buff++;
+		 }
+	 }
+ }
 
