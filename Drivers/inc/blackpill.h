@@ -231,6 +231,7 @@ typedef struct
 typedef struct
 {
 	uint32_t	SPI_CR1;		// Info from reference manual
+	uint32_t	SPI_CR2;
 	uint32_t	RESERVED0;
 	uint32_t	SPI_SR;
 	uint32_t	SPI_DR;

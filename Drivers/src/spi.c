@@ -21,6 +21,8 @@ void SPI_IRQ_Handling(SPI_Handle_t *P_handle);
 void SPI_Priority_Config(uint8_t IRQ_number , uint32_t priority);
 void SPI_Peripheral_Control(SPI_RegDef_t *SPI_Handle, uint8_t S_O_R); // function for activating the SPE register in CR1 register
 void SPI_SSI_Enable(SPI_RegDef_t *SPI_Handle, uint8_t S_O_R);
+void SPI_SSOE_Enable(SPI_RegDef_t *SPI_Handle, uint8_t S_O_R);
+
  	 	 // function declaration
 
 void SPI_Clock_EN(SPI_RegDef_t *pSPIx)
@@ -238,6 +240,16 @@ void SPI_Init(SPI_Handle_t *SPI_Handle)
 	 }
 
  }
+ /*
+ 	 *  ENABLING THE SSI BIT IN CR1 REGISTER TELLS THAT INTERNAL SLAVE SELECT HAS BEEN SET OR NOT
+ 	 *
+ 	 *  this is because we have selected the SSM bit as 1 and when SSM bit is set to 1, it has an effect on
+ 	 *  SSI bit so We have to set SSI bit 0/1. This value will be pushed to the NSS pin
+ 	 *
+ 	 *  When we set the SSI pin to 1, we set the NSS pin to 1 thus saying there is no slave.
+ 	 *
+ 	 *
+ 	 */
  void SPI_SSI_Enable(SPI_RegDef_t *SPI_Handle, uint8_t S_O_R)
  {
 	 if(S_O_R == ENABLE)
@@ -249,4 +261,31 @@ void SPI_Init(SPI_Handle_t *SPI_Handle)
 	 		 SPI_Handle->SPI_CR1 &= ~(1<<8);
 	 	 }
  }
+ /*
+  * 0: SS output is disabled in master mode and the cell can work in multimaster configuration
+	1: SS output is enabled in master mode and when the cell is enabled. The cell cannot work
+	in a multimaster environment.
+
+  */
+void SPI_SSOE_Enable(SPI_RegDef_t *SPI_Handle, uint8_t S_O_R)
+{
+	if(S_O_R == ENABLE)
+	{
+		SPI_Handle->SPI_CR2 |= (1<<2);
+	}
+	else
+	{
+		SPI_Handle->SPI_CR2 &= ~(1<<2);
+	}
+}
+/*
+	 *  checks whether the SPI is busy or not. busy in the sense whether the data
+	 *  is been sent or not
+	 */
+uint8_t SPI_BusyFlag(SPI_RegDef_t *SPI_Handle)
+{
+
+	return(SPI_Handle->SPI_SR & (1<<7));
+}
+
 

@@ -64,11 +64,24 @@ int main(void)
 {
 	SPI2_GPIO_inits();
 	SPI2_inits();
-	SPI_SSI_Enable(SPI2,ENABLE);        //TODO THIS FUNCTION NOT WORKING
-	SPI_Peripheral_Control(SPI2, ENABLE); // TODO THIS FUNCTION NOT WORKING
+
+	SPI_SSI_Enable(SPI2,ENABLE);
+	/*
+	 * // ENABLING THE SPI
+	 */
+	SPI_Peripheral_Control(SPI2, ENABLE);
+	/*
+	 * // ENABLING SSOE BIT IN CR2 SAYS ITS IN MASTER MODE
+	 */
+	SPI_SSOE_Enable(SPI2,ENABLE);
 
 	char data[] = "Hello World";
 	SPI_Send(SPI2 , (uint8_t*) data,strlen(data));
+
+	while(SPI_BusyFlag(SPI1));
+	SPI_Peripheral_Control(SPI2, DISABLE);
+
+
 	while(1)
 	{
 

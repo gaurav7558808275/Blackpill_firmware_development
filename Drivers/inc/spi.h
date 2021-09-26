@@ -47,6 +47,7 @@ void SPI_IRQ_Handling(SPI_Handle_t *P_handle);
 void SPI_Priority_Config(uint8_t IRQ_number , uint32_t priority);
 
 void SPI_Peripheral_Control(SPI_RegDef_t *SPI_Handle, uint8_t S_O_R);
-
-
+void SPI_SSI_Enable(SPI_RegDef_t *SPI_Handle, uint8_t S_O_R);
+void SPI_SSOE_Enable(SPI_RegDef_t *SPI_Handle, uint8_t S_O_R);
+uint8_t SPI_BusyFlag(SPI_RegDef_t *SPI_Handle);
 #endif /* DRIVERS_INC_SPI_H_ */
