@@ -10,6 +10,8 @@
 
 #include "blackpill.h"
 
+
+
 typedef struct
 {
 	uint32_t	SPI_MODE;
@@ -44,7 +46,7 @@ void SPI_IRQ_IT_config(uint8_t IRQ_Number, uint8_t S_O_R);  // SET OR RESET
 void SPI_IRQ_Handling(SPI_Handle_t *P_handle);
 void SPI_Priority_Config(uint8_t IRQ_number , uint32_t priority);
 
-
+void SPI_Peripheral_Control(SPI_RegDef_t *SPI_Handle, uint8_t S_O_R);
 
 
 #endif /* DRIVERS_INC_SPI_H_ */

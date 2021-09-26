@@ -261,7 +261,7 @@ void GPIO_Init(GPIOx_Handle *GPIO_Handle)
 		//GPIO_Handle->pGPIOx->OTYPER = ~(0x01<<GPIO_Pin_config.GPIO_PinNumber ); classic clear
 	GPIO_Handle->pGPIOx->OTYPER |= (GPIO_Handle->GPIO_Pin_config.GPIO_PinOutputType << (GPIO_Handle->GPIO_Pin_config.GPIO_PinNumber));
 		// alternate function
-	if(GPIO_Handle->GPIO_Pin_config.GPIO_AltFunctionMode == GPIO_MODE_ALT)
+	if(GPIO_Handle->GPIO_Pin_config.GPIO_AltFunctionMode <= GPIO_ALT_MODE_15)
 		{
 			//ALTERNATE PIN SETUP
 			// INCASE YOU FORGET THE MULTIPLICATION FACTOR DEPENDS ON THE REGISTER MAPPING PER PIN

@@ -33,13 +33,13 @@ void SPI2_GPIO_inits(void)
 	pins.GPIO_Pin_config.GPIO_PinNumber = GPIO_PIN_13;  // SCK init
 	GPIO_Init(&pins);
 
-	pins.GPIO_Pin_config.GPIO_PinSpeed = GPIO_PIN_12;  // NSS init
+	pins.GPIO_Pin_config.GPIO_PinNumber= GPIO_PIN_12;  // NSS init
 	GPIO_Init(&pins);
 
-	pins.GPIO_Pin_config.GPIO_PinSpeed = GPIO_PIN_14;  // MOSI init
+	pins.GPIO_Pin_config.GPIO_PinNumber = GPIO_PIN_14;  // MOSI init
 	GPIO_Init(&pins);
 
-	pins.GPIO_Pin_config.GPIO_PinSpeed = GPIO_PIN_15;  // MISO init
+	pins.GPIO_Pin_config.GPIO_PinNumber = GPIO_PIN_15;  // MISO init
 	GPIO_Init(&pins);
 }
 
@@ -56,6 +56,7 @@ void SPI2_inits(void)
 	spi.SPI_Config.SPI_SSM = SPI_SSM_EN;
 
 	SPI_Init(&spi);
+
 }
 
 
@@ -63,6 +64,8 @@ int main(void)
 {
 	SPI2_GPIO_inits();
 	SPI2_inits();
+	SPI_SSI_Enable(SPI2,ENABLE);        //TODO THIS FUNCTION NOT WORKING
+	SPI_Peripheral_Control(SPI2, ENABLE); // TODO THIS FUNCTION NOT WORKING
 
 	char data[] = "Hello World";
 	SPI_Send(SPI2 , (uint8_t*) data,strlen(data));

@@ -19,8 +19,8 @@ void SPI_Receive(SPI_RegDef_t *pSPIx, uint8_t *rx_buff , uint32_t length);
 void SPI_IRQ_IT_config(uint8_t IRQ_Number, uint8_t S_O_R);  // SET OR RESET
 void SPI_IRQ_Handling(SPI_Handle_t *P_handle);
 void SPI_Priority_Config(uint8_t IRQ_number , uint32_t priority);
-
-
+void SPI_Peripheral_Control(SPI_RegDef_t *SPI_Handle, uint8_t S_O_R); // function for activating the SPE register in CR1 register
+void SPI_SSI_Enable(SPI_RegDef_t *SPI_Handle, uint8_t S_O_R);
  	 	 // function declaration
 
 void SPI_Clock_EN(SPI_RegDef_t *pSPIx)
@@ -171,7 +171,7 @@ void SPI_Init(SPI_Handle_t *SPI_Handle)
 		{
 		SPI_Handle->pSPIx->SPI_CR1 &= ~(1<<9);
 		}
-	else if(SPI_Handle->SPI_Config.SPI_SSM == SPI_SSM_DI)
+	else if(SPI_Handle->SPI_Config.SPI_SSM == SPI_SSM_EN)
 		{
 			SPI_Handle->pSPIx->SPI_CR1 |= (1<<9);
 		}
@@ -202,11 +202,11 @@ void SPI_Init(SPI_Handle_t *SPI_Handle)
 
  void SPI_Send(SPI_RegDef_t *pSPIx, uint8_t *tx_buff , uint32_t length)    // polling method
  {
-	 uint32_t TX_mask = 1UL;
+	 //uint32_t TX_mask = 0x0001;
 	 while(length > 0)
 	 {
 		 // check the tx status
-		 while(!(pSPIx->SPI_SR & TX_mask));   //TODO implement using function
+		 while(!(pSPIx->SPI_SR & (1<<1)));   //TODO implement using function
 		 // check the dff bit field
 		 if(pSPIx->SPI_CR1 & (1<11))
 		 {
@@ -224,5 +224,29 @@ void SPI_Init(SPI_Handle_t *SPI_Handle)
 			 tx_buff++;
 		 }
 	 }
+ }
+
+ void SPI_Peripheral_Control(SPI_RegDef_t *SPI_Handle, uint8_t S_O_R)
+ {
+	 if(S_O_R == ENABLE)
+	 {
+		 SPI_Handle->SPI_CR1 |= (1 << 6);
+	 }
+	 else
+	 {
+		 SPI_Handle->SPI_CR1 &= ~(1 << 6);
+	 }
+
+ }
+ void SPI_SSI_Enable(SPI_RegDef_t *SPI_Handle, uint8_t S_O_R)
+ {
+	 if(S_O_R == ENABLE)
+	 	 {
+		 	 SPI_Handle->SPI_CR1 |= (1<<8);
+	 	 }
+	 else
+	 	 {
+	 		 SPI_Handle->SPI_CR1 &= ~(1<<8);
+	 	 }
  }
 
