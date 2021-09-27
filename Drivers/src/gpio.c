@@ -368,15 +368,15 @@ if (S_O_R == ENABLE)
 	{
 		if(IRQ_Number <= 31)
 		{
-		*NVIC_ICER0 |= (1 << IRQ_Number);
+		*NVIC_ICER0 &= ~(1 << IRQ_Number);
 		}
 		else if(IRQ_Number >31 && IRQ_Number <64) // 32-63
 		{
-		*NVIC_ICER1 |= (1 << (IRQ_Number % 32));
+		*NVIC_ICER1 &= ~(1 << (IRQ_Number % 32));
 		}
 		else if(IRQ_Number >64 && IRQ_Number <96)
 		{
-		*NVIC_ICER2 |= (1 << (IRQ_Number % 64));
+		*NVIC_ICER2 &= ~(1 << (IRQ_Number % 64));
 		}
 	}
 
@@ -385,7 +385,7 @@ if (S_O_R == ENABLE)
 
 void GPIO_Priority_Config(uint8_t IRQ_number , uint32_t priority)
 {
-	uint8_t iprx = IRQ_number/8;   	// TO FIND THE WHICH REGISTER OF PRI
+	uint8_t iprx = IRQ_number/4;   	// TO FIND THE WHICH REGISTER OF PRI
 	uint8_t iprx_section = IRQ_number % 4;		// THIS IS USED TO FIND THE SECTION THAT THE DTAA WILL BE UPDATED
 	uint8_t shift_amount = (8 * iprx_section) + (8 - NO_OF_BIT_IMPLEMENTED);	// IN THE IPR LAST 4 BITS ARE INGNORED
 
@@ -397,7 +397,7 @@ void GPIO_IRQ_Handling(uint8_t PinNumber)
 {
 	if(EXTI->EXTI_PR & (1<< PinNumber))
 	{
-		EXTI->EXTI_PR |=(1<< PinNumber);
+		EXTI->EXTI_PR |=(1<< PinNumber);  // Setting it to 1 is clearing. See EXTI -> PR register
 	}
 }
 

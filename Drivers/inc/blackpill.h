@@ -17,6 +17,7 @@
 #define DISABLE 		0
 #define SET				ENABLE
 #define RESET			DISABLE
+#define __weak__			__attribute__((weak))
 /*-------------------------------------------------Processor specific details--------------------------------------------*/
 
 #define NVIC_ISER0		((__vol uint32_t *) 0xE000E100)
@@ -217,16 +218,23 @@ typedef struct
 #define SYSCFG					((SYSCONFIG_Reg_Def*)SYSCFG_BASE_ADDR)
 #define SYSCFG_CLK_EN()			(RCC->RCC_APB2ENR |= (1<<14))
 				// THESE VALUES ARE VLAUES OF INTERRUPT VECTOR VAILBALE ON THE VECTOR TABLE OF REFERENCE MANUAL.
-#define IRQ_N_EXTI0				6
-#define IRQ_N_EXTI1	 			7
-#define IRQ_N_EXTI2				8
-#define IRQ_N_EXTI3				9
-#define IRQ_N_EXTI4				10
-#define IRQ_N_EXTI9_5			23
-#define IRQ_N_EXTI15_10			40
-#define IRQ_N_EXTI17			41
+#define IRQ_N_EXTI0			6
+#define IRQ_N_EXTI1	 		7
+#define IRQ_N_EXTI2			8
+#define IRQ_N_EXTI3			9
+#define IRQ_N_EXTI4			10
+#define IRQ_N_EXTI9_5		23
+#define IRQ_N_EXTI15_10		40
+#define IRQ_N_EXTI17		41
 
 /*--------------------------------------------------------SPI PHERIPHERAL STRUCTURE ---------------------------------------------------------*/
+
+// SPI IRQ numbers from vector Table
+#define IRQ_N_SPI1			34
+#define IRQ_N_SPI2			35
+#define IRQ_N_SPI3			51
+#define IRQ_N_SPI4			84
+#define IRQ_N_SPI5			85
 
 typedef struct
 {
