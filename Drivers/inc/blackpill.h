@@ -3,6 +3,16 @@
  *
  *  Created on: Sep 15, 2021
  *      Author: Gaurav
+ *
+ *
+ *      **********MCU Specific header file for Blacpi Pill************
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  */
 
 #ifndef DRIVERS_INC_BLACKPILL_H_
@@ -21,7 +31,7 @@
 /*-------------------------------------------------Processor specific details--------------------------------------------*/
 
 #define NVIC_ISER0		((__vol uint32_t *) 0xE000E100)
-#define NVIC_ISER1		((__vol uint32_t *) 0xE000E104)		// TODO: TRY THE INTERRUPT LOGIC ON ISER AND ICER REGISTERS
+#define NVIC_ISER1		((__vol uint32_t *) 0xE000E104)
 #define NVIC_ISER2		((__vol uint32_t *) 0xE000E108)
 #define NVIC_ISER3		((__vol uint32_t *) 0xE000E10c)
 
@@ -227,7 +237,15 @@ typedef struct
 #define IRQ_N_EXTI15_10		40
 #define IRQ_N_EXTI17		41
 
-/*--------------------------------------------------------SPI PHERIPHERAL STRUCTURE ---------------------------------------------------------*/
+/*
+ *
+ *
+ * --------------------------------------------------------SPI PHERIPHERAL STRUCTURE ---------------------------------------------------------
+ *
+ *
+ * */
+
+/*TODO : Bit position definitionneeds to be done*/
 
 // SPI IRQ numbers from vector Table
 #define IRQ_N_SPI1			34
@@ -311,5 +329,42 @@ typedef struct
 #define SPI3_Clock_Reset()			do{RCC->RCC_APB1RSTR |= (1<<15); RCC->RCC_APB1RSTR &= ~(1<<15);} while(0)
 #define SPI4_Clock_Reset()			do{RCC->RCC_APB2RSTR |= (1<<13); RCC->RCC_APB2RSTR &= ~(1<<13);} while(0)
 #define SPI5_Clock_Reset()			do{RCC->RCC_APB2RSTR |= (1<<20); RCC->RCC_APB2RSTR &= ~(1<<20);} while(0)
+
+
+/***********************************************************************
+ *
+ * 	I2C Peripheral Structure Declaration.
+ *
+ * 	Structure varalble is in the formate of peripheral_REGdef_t format
+ *
+ *
+ ***********************************************************************/
+
+typedef struct
+{
+	uint32_t	I2C_CR1;
+	uint32_t	I2C_CR2;
+	uint32_t	I2C_0AR1;
+	uint32_t	I2C_OAR2;
+	uint32_t	I2C_DR;
+	uint32_t	I2C_SR1;
+	uint32_t	I2C_SR2;
+	uint32_t	I2C_CCR;
+	uint32_t	I2C_TRISE;
+	uint32_t	I2C_FLTR;
+
+}I2C_RegDef_t;
+
+/*			Structure pointers for different I2C's			*/
+
+#define I2C1			(*(I2C_RegDef_t *)I2C1_BASE_ADDR)
+#define I2C2			(*(I2C_RegDef_t *)I2C2_BASE_ADDR)
+#define I2C3			(*(I2C_RegDef_t *)I2C3_BASE_ADDR)
+/*					Clock enable macros						*/
+#define I2C1_CLOCK_EN()	(RCC->RCC-APB1 |= (1<<21))
+#define I2C2_CLOCK_EN()	(RCC->RCC-APB1 |= (1<<22))
+#define I2C3_CLOCK_EN()	(RCC->RCC-APB1 |= (1<<23))
+
+
 
 #endif /* DRIVERS_INC_BLACKPILL_H_ */

@@ -227,9 +227,10 @@ void SPI_Init(SPI_Handle_t *SPI_Handle)
 	 		SPI5_Clock_Reset();
 	 	 }
 }
-/*
- *  		Send data with polling method.
- */
+/********************************************************************
+ *  	Send data with polling method.
+ *
+ ********************************************************************/
  void SPI_Send(SPI_RegDef_t *pSPIx, uint8_t *tx_buff , uint32_t length)
  {
 	 //uint32_t TX_mask = 0x0001;
@@ -256,9 +257,10 @@ void SPI_Init(SPI_Handle_t *SPI_Handle)
 	 }
  }
 
- /*
+ /****************************************************
   *  Data receive using polling method.
-  */
+  *
+  ****************************************************/
 
  void SPI_Receive(SPI_RegDef_t *pSPIx, uint8_t *rx_buff , uint32_t length)
  {
@@ -286,11 +288,11 @@ void SPI_Init(SPI_Handle_t *SPI_Handle)
 	 }
  }
 
- /*
+ /********************************************************************
   * Sets the SPE bit SPI enable bit in CR1.
   * This bit is very necessary to start the SPI Bus
   *
-  */
+  ********************************************************************/
  void SPI_Peripheral_Control(SPI_RegDef_t *SPI_Handle, uint8_t S_O_R)
  {
 	 if(S_O_R == ENABLE)
@@ -307,12 +309,13 @@ void SPI_Init(SPI_Handle_t *SPI_Handle)
  /*******************************************************************************************************************
  	 *  ENABLING THE SSI BIT IN CR1 REGISTER TELLS THAT INTERNAL SLAVE SELECT HAS BEEN SET OR NOT
  	 *
- 	 *  this is because we have selected the SSM bit as 1 and when SSM bit is set to 1, it has an effect on
- 	 *  SSI bit so We have to set SSI bit 0/1. This value will be pushed to the NSS pin
+ 	 *  this is because if we have selected the SSM bit as 1 and when SSM bit is set to 1,
+ 	 *  it has an effect on SSI bit so We have to set SSI bit 0/1. This value will be pushed to
+ 	 *  the NSS pin
  	 *
  	 *  When we set the SSI pin to 1, we set the NSS pin to 1 thus saying there is no slave.
  	 *
- 	 *
+ 	 *This function san be used for saying whether there is a slave or not
  	 ***************************************************************************************************************/
 
  void SPI_SSI_Enable(SPI_RegDef_t *SPI_Handle, uint8_t S_O_R)
@@ -326,12 +329,12 @@ void SPI_Init(SPI_Handle_t *SPI_Handle)
 	 		 SPI_Handle->SPI_CR1 &= ~(1<<8);
 	 	 }
  }
- /*
+ /***********************************************************************************************
   * 0: SS output is disabled in master mode and the cell can work in multimaster configuration
 	1: SS output is enabled in master mode and when the cell is enabled. The cell cannot work
 	in a multimaster environment.
 
-  */
+  ***********************************************************************************************/
 void SPI_SSOE_Enable(SPI_RegDef_t *SPI_Handle, uint8_t S_O_R)
 {
 	if(S_O_R == ENABLE)
@@ -343,15 +346,20 @@ void SPI_SSOE_Enable(SPI_RegDef_t *SPI_Handle, uint8_t S_O_R)
 		SPI_Handle->SPI_CR2 &= ~(1<<2);
 	}
 }
-/*
+/************************************************************************************************
 	 *  checks whether the SPI is busy or not. busy in the sense whether the data
 	 *  is been sent or not
-	 */
+*************************************************************************************************/
 uint8_t SPI_BusyFlag(SPI_RegDef_t *SPI_Handle)
 {
 
 	return(SPI_Handle->SPI_SR & (1<<7));
 }
+/************************************************************************************************
+ * 	normal function to activate the NVIC
+ *
+ *
+ ************************************************************************************************/
 
 void SPI_IRQ_IT_config(uint8_t IRQ_Number, uint8_t S_O_R)
 {
@@ -389,6 +397,19 @@ void SPI_IRQ_IT_config(uint8_t IRQ_Number, uint8_t S_O_R)
 
 
 	}
+/*
+ * Function to send data using interrupt. it takes parameters like
+ * @handle 		the handle for connecting with SPI structure
+ * @Tx_buff		TXbuffer to push data
+ * @length		1 or 2 That shows bytes.
+ *
+ * -> Checks whether the status of TX in structure is ready or not.
+ * -> data is pushed to handler
+ * -> Sets the interrupt bit
+ * -> returns the value of the function and this will be utilised in a while loop in
+ * application function. till then it waits.
+ *
+ */
 uint8_t SPI_Send_IT(SPI_Handle_t * pSPI_Handle_t, uint8_t *tx_buff , uint32_t length)
 {
 
@@ -409,9 +430,11 @@ uint8_t SPI_Send_IT(SPI_Handle_t * pSPI_Handle_t, uint8_t *tx_buff , uint32_t le
 
 	}
 	return state;
-
-
 }
+/*
+ * parameters
+ *
+ */
 uint8_t SPI_Receive_IT(SPI_Handle_t *pSPI_Handle_t, uint8_t *rx_buff , uint32_t length)
 {
 	uint8_t state = pSPI_Handle_t->rxrdy;
@@ -447,7 +470,7 @@ void SPI_IRQ_Handling(SPI_Handle_t *pSPI_Handle_t )
 	}
 
 			// first check RXE flag
-	temp1 = (pSPI_Handle_t->pSPIx->SPI_SR) & (1<<0);  // checking the rx empty or not bit
+	temp1 = (pSPI_Handle_t->pSPIx->SPI_SR) & (1<<0);  // checking the rx not_empty or empty bit
 	temp2 = (pSPI_Handle_t->pSPIx->SPI_CR2) & (1<<6); // rx interrupt activated or not check
 	if(temp2 && temp1)
 	{

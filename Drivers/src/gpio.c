@@ -107,148 +107,148 @@ void GPIO_Init(GPIOx_Handle *GPIO_Handle)
 		GPIO_Handle->pGPIOx->MODER |= (GPIO_Handle->GPIO_Pin_config.GPIO_PinMode << ( 2 * GPIO_Handle->GPIO_Pin_config.GPIO_PinNumber)); // LOGICAL SET
 	}
 
-	else
+	else // interrupt check condition else
 	{
-		if(GPIO_Handle->GPIO_Pin_config.GPIO_PinMode  == GPIO_MODE_IT_FT)
-	{
-				// interrupt pin initialisation FALLING TRIGGER
-		EXTI->EXTI_FTSR |= (1<< GPIO_Handle->GPIO_Pin_config.GPIO_PinNumber);
-		EXTI->EXTI_RTSR &= ~(1<< GPIO_Handle->GPIO_Pin_config.GPIO_PinNumber);
+				if(GPIO_Handle->GPIO_Pin_config.GPIO_PinMode  == GPIO_MODE_IT_FT)
+			{
+						// interrupt pin initialisation FALLING TRIGGER
+				EXTI->EXTI_FTSR |= (1<< GPIO_Handle->GPIO_Pin_config.GPIO_PinNumber);
+				EXTI->EXTI_RTSR &= ~(1<< GPIO_Handle->GPIO_Pin_config.GPIO_PinNumber);
 
-	}
-	else if(GPIO_Handle->GPIO_Pin_config.GPIO_PinMode  == GPIO_MODE_IT_RT)
-	{
-				//GPIO_PIN SETUP FOR RISING TRIGGER
-		EXTI->EXTI_FTSR &= ~(1<< GPIO_Handle->GPIO_Pin_config.GPIO_PinNumber);
-		EXTI->EXTI_RTSR |= (1<< GPIO_Handle->GPIO_Pin_config.GPIO_PinNumber);
-	}
-	else if(GPIO_Handle->GPIO_Pin_config.GPIO_PinMode  == GPIO_MODE_IT_RFT)
-	{
-				// GPIO PIN SETUP FOR RISING AND FALLING TRIGGER
-		EXTI->EXTI_FTSR |= (1<< GPIO_Handle->GPIO_Pin_config.GPIO_PinNumber);
-		EXTI->EXTI_RTSR |= (1<< GPIO_Handle->GPIO_Pin_config.GPIO_PinNumber);
-	}
-
-	SYSCFG_CLK_EN();			//SYSCONFIG CLOCK INITIALISATION MACRO
-
-/*____________________________________// CONFIGURE THE SYSCONFIG PORT SELECTOR__________________________________________________________________________________*/
-	if(GPIO_Handle->GPIO_Pin_config.GPIO_PinNumber <=3)
+			}
+			else if(GPIO_Handle->GPIO_Pin_config.GPIO_PinMode  == GPIO_MODE_IT_RT)
+			{
+						//GPIO_PIN SETUP FOR RISING TRIGGER
+				EXTI->EXTI_FTSR &= ~(1<< GPIO_Handle->GPIO_Pin_config.GPIO_PinNumber);
+			EXTI->EXTI_RTSR |= (1<< GPIO_Handle->GPIO_Pin_config.GPIO_PinNumber);
+		}
+		else if(GPIO_Handle->GPIO_Pin_config.GPIO_PinMode  == GPIO_MODE_IT_RFT)
 		{
-			if(GPIO_Handle->pGPIOx == GPIOA)
-				{
-					SYSCFG->SYSCFG_EXTICR1 |= (GPIO_SYSCFG_MODE_A << (4 * GPIO_Handle->GPIO_Pin_config.GPIO_PinNumber));
-				}
-				else if(GPIO_Handle->pGPIOx == GPIOB)
-				{
-					SYSCFG->SYSCFG_EXTICR1 |= (GPIO_SYSCFG_MODE_B << (4 * GPIO_Handle->GPIO_Pin_config.GPIO_PinNumber)) ;
-				}
-				else if(GPIO_Handle->pGPIOx == GPIOC)
-				{
-					SYSCFG->SYSCFG_EXTICR1 |= (GPIO_SYSCFG_MODE_C << (4 * GPIO_Handle->GPIO_Pin_config.GPIO_PinNumber)) ;
-				}
-				else if(GPIO_Handle->pGPIOx == GPIOD)
-				{
-					SYSCFG->SYSCFG_EXTICR1 |= (GPIO_SYSCFG_MODE_D << (4 * GPIO_Handle->GPIO_Pin_config.GPIO_PinNumber)) ;
-				}
-				else if(GPIO_Handle->pGPIOx == GPIOE)
-				{
-					SYSCFG->SYSCFG_EXTICR1 |= (GPIO_SYSCFG_MODE_E << (4 * GPIO_Handle->GPIO_Pin_config.GPIO_PinNumber)) ;
-				}
-				else if(GPIO_Handle->pGPIOx == GPIOH)
-				{
-					SYSCFG->SYSCFG_EXTICR1 |= (GPIO_SYSCFG_MODE_H << (4 * GPIO_Handle->GPIO_Pin_config.GPIO_PinNumber)) ;
-				}
+					// GPIO PIN SETUP FOR RISING AND FALLING TRIGGER
+			EXTI->EXTI_FTSR |= (1<< GPIO_Handle->GPIO_Pin_config.GPIO_PinNumber);
+			EXTI->EXTI_RTSR |= (1<< GPIO_Handle->GPIO_Pin_config.GPIO_PinNumber);
 		}
 
-			else if(GPIO_Handle->GPIO_Pin_config.GPIO_PinNumber>3 && GPIO_Handle->GPIO_Pin_config.GPIO_PinNumber <=7 )
+		SYSCFG_CLK_EN();			//SYSCONFIG CLOCK INITIALISATION MACRO
 
+		/*____________________________________// CONFIGURE THE SYSCONFIG PORT SELECTOR__________________________________________________________________________________*/
+		if(GPIO_Handle->GPIO_Pin_config.GPIO_PinNumber <=3)
 			{
 				if(GPIO_Handle->pGPIOx == GPIOA)
-				{
-					SYSCFG->SYSCFG_EXTICR2 |= (GPIO_SYSCFG_MODE_A << (4 * (GPIO_Handle->GPIO_Pin_config.GPIO_PinNumber % 4)));
-				}
-				else if(GPIO_Handle->pGPIOx == GPIOB)
-				{
-					SYSCFG->SYSCFG_EXTICR2 |= (GPIO_SYSCFG_MODE_B << (4 * (GPIO_Handle->GPIO_Pin_config.GPIO_PinNumber%4))) ;
-				}
-				else if(GPIO_Handle->pGPIOx == GPIOC)
-				{
-					SYSCFG->SYSCFG_EXTICR2 |= (GPIO_SYSCFG_MODE_C << (4 * (GPIO_Handle->GPIO_Pin_config.GPIO_PinNumber%4))) ;
-				}
+					{
+						SYSCFG->SYSCFG_EXTICR1 |= (GPIO_SYSCFG_MODE_A << (4 * GPIO_Handle->GPIO_Pin_config.GPIO_PinNumber));
+					}
+					else if(GPIO_Handle->pGPIOx == GPIOB)
+					{
+						SYSCFG->SYSCFG_EXTICR1 |= (GPIO_SYSCFG_MODE_B << (4 * GPIO_Handle->GPIO_Pin_config.GPIO_PinNumber)) ;
+					}
+					else if(GPIO_Handle->pGPIOx == GPIOC)
+					{
+						SYSCFG->SYSCFG_EXTICR1 |= (GPIO_SYSCFG_MODE_C << (4 * GPIO_Handle->GPIO_Pin_config.GPIO_PinNumber)) ;
+					}
 					else if(GPIO_Handle->pGPIOx == GPIOD)
-				{
-					SYSCFG->SYSCFG_EXTICR2 |= (GPIO_SYSCFG_MODE_D << (4 * (GPIO_Handle->GPIO_Pin_config.GPIO_PinNumber%4))) ;
-				}
-				else if(GPIO_Handle->pGPIOx == GPIOE)
-				{
-					SYSCFG->SYSCFG_EXTICR2 |= (GPIO_SYSCFG_MODE_E << (4 * (GPIO_Handle->GPIO_Pin_config.GPIO_PinNumber%4))) ;
-				}
-				else if(GPIO_Handle->pGPIOx == GPIOH)
-				{
-					SYSCFG->SYSCFG_EXTICR2 |= (GPIO_SYSCFG_MODE_H << (4 * (GPIO_Handle->GPIO_Pin_config.GPIO_PinNumber%4))) ;
-				}
-		  }
-
-			else if(GPIO_Handle->GPIO_Pin_config.GPIO_PinNumber>7 && GPIO_Handle->GPIO_Pin_config.GPIO_PinNumber <=11)
-
-			{
-				if(GPIO_Handle->pGPIOx == GPIOA)
-				{
-					SYSCFG->SYSCFG_EXTICR3 |= (GPIO_SYSCFG_MODE_A << (4 * (GPIO_Handle->GPIO_Pin_config.GPIO_PinNumber%8))) ;
-				}
-				else if(GPIO_Handle->pGPIOx == GPIOB)
-				{
-					SYSCFG->SYSCFG_EXTICR3 |= (GPIO_SYSCFG_MODE_B << (4 * (GPIO_Handle->GPIO_Pin_config.GPIO_PinNumber%8))) ;
-				}
-				else if(GPIO_Handle->pGPIOx == GPIOC)
-				{
-					SYSCFG->SYSCFG_EXTICR3 |= (GPIO_SYSCFG_MODE_C << (4 * (GPIO_Handle->GPIO_Pin_config.GPIO_PinNumber%8))) ;
-				}
-				else if(GPIO_Handle->pGPIOx == GPIOD)
-				{
-					SYSCFG->SYSCFG_EXTICR3 |= (GPIO_SYSCFG_MODE_D << ((4 * GPIO_Handle->GPIO_Pin_config.GPIO_PinNumber%8))) ;
-				}
-				else if(GPIO_Handle->pGPIOx == GPIOE)
-				{
-					SYSCFG->SYSCFG_EXTICR3 |= (GPIO_SYSCFG_MODE_E << ((4 * GPIO_Handle->GPIO_Pin_config.GPIO_PinNumber%8))) ;
-				}
-				else if(GPIO_Handle->pGPIOx == GPIOH)
-				{
-					SYSCFG->SYSCFG_EXTICR3 |= (GPIO_SYSCFG_MODE_H << ((4 * GPIO_Handle->GPIO_Pin_config.GPIO_PinNumber%8))) ;
-				}
-
+					{
+						SYSCFG->SYSCFG_EXTICR1 |= (GPIO_SYSCFG_MODE_D << (4 * GPIO_Handle->GPIO_Pin_config.GPIO_PinNumber)) ;
+					}
+					else if(GPIO_Handle->pGPIOx == GPIOE)
+					{
+						SYSCFG->SYSCFG_EXTICR1 |= (GPIO_SYSCFG_MODE_E << (4 * GPIO_Handle->GPIO_Pin_config.GPIO_PinNumber)) ;
+					}
+					else if(GPIO_Handle->pGPIOx == GPIOH)
+					{
+						SYSCFG->SYSCFG_EXTICR1 |= (GPIO_SYSCFG_MODE_H << (4 * GPIO_Handle->GPIO_Pin_config.GPIO_PinNumber)) ;
+					}
 			}
 
-			else if(GPIO_Handle->GPIO_Pin_config.GPIO_PinNumber>11 && GPIO_Handle->GPIO_Pin_config.GPIO_PinNumber <=15)
-			{
-				if(GPIO_Handle->pGPIOx == GPIOA)
-				{
-					SYSCFG->SYSCFG_EXTICR4 |= (GPIO_SYSCFG_MODE_A << (4 * (GPIO_Handle->GPIO_Pin_config.GPIO_PinNumber%12))) ;
-				}
-				else if(GPIO_Handle->pGPIOx == GPIOB)
-				{
-					SYSCFG->SYSCFG_EXTICR4 |= (GPIO_SYSCFG_MODE_B << (4 * (GPIO_Handle->GPIO_Pin_config.GPIO_PinNumber%12))) ;
-				}
-				else if(GPIO_Handle->pGPIOx == GPIOC)
-				{
-					SYSCFG->SYSCFG_EXTICR4 |= (GPIO_SYSCFG_MODE_C << (4 * (GPIO_Handle->GPIO_Pin_config.GPIO_PinNumber%12))) ;
-				}
-				else if(GPIO_Handle->pGPIOx == GPIOD)
-				{
-					SYSCFG->SYSCFG_EXTICR4 |= (GPIO_SYSCFG_MODE_D << (4 * (GPIO_Handle->GPIO_Pin_config.GPIO_PinNumber%12))) ;
-				}
-				else if(GPIO_Handle->pGPIOx == GPIOE)
-				{
-					SYSCFG->SYSCFG_EXTICR4 |= (GPIO_SYSCFG_MODE_E << (4 * (GPIO_Handle->GPIO_Pin_config.GPIO_PinNumber%12))) ;
-				}
-				else if(GPIO_Handle->pGPIOx == GPIOH)
-				{
-					SYSCFG->SYSCFG_EXTICR4 |= (GPIO_SYSCFG_MODE_H << (4 * (GPIO_Handle->GPIO_Pin_config.GPIO_PinNumber%12))) ;
-				}
-			}
-	/*_______________________// INITLISAZE THE INTERRUPT OF EXTI ACCORDING TO PIN________________________________________________*/
+				else if(GPIO_Handle->GPIO_Pin_config.GPIO_PinNumber>3 && GPIO_Handle->GPIO_Pin_config.GPIO_PinNumber <=7 )
 
-			EXTI->EXTI_IMR |= (1<< GPIO_Handle->GPIO_Pin_config.GPIO_PinNumber);		// pushed that bit to interrupt mask register
+				{
+					if(GPIO_Handle->pGPIOx == GPIOA)
+					{
+						SYSCFG->SYSCFG_EXTICR2 |= (GPIO_SYSCFG_MODE_A << (4 * (GPIO_Handle->GPIO_Pin_config.GPIO_PinNumber % 4)));
+					}
+					else if(GPIO_Handle->pGPIOx == GPIOB)
+					{
+						SYSCFG->SYSCFG_EXTICR2 |= (GPIO_SYSCFG_MODE_B << (4 * (GPIO_Handle->GPIO_Pin_config.GPIO_PinNumber%4))) ;
+					}
+					else if(GPIO_Handle->pGPIOx == GPIOC)
+					{
+						SYSCFG->SYSCFG_EXTICR2 |= (GPIO_SYSCFG_MODE_C << (4 * (GPIO_Handle->GPIO_Pin_config.GPIO_PinNumber%4))) ;
+					}
+						else if(GPIO_Handle->pGPIOx == GPIOD)
+					{
+						SYSCFG->SYSCFG_EXTICR2 |= (GPIO_SYSCFG_MODE_D << (4 * (GPIO_Handle->GPIO_Pin_config.GPIO_PinNumber%4))) ;
+					}
+					else if(GPIO_Handle->pGPIOx == GPIOE)
+					{
+						SYSCFG->SYSCFG_EXTICR2 |= (GPIO_SYSCFG_MODE_E << (4 * (GPIO_Handle->GPIO_Pin_config.GPIO_PinNumber%4))) ;
+					}
+					else if(GPIO_Handle->pGPIOx == GPIOH)
+					{
+						SYSCFG->SYSCFG_EXTICR2 |= (GPIO_SYSCFG_MODE_H << (4 * (GPIO_Handle->GPIO_Pin_config.GPIO_PinNumber%4))) ;
+					}
+			  }
+
+				else if(GPIO_Handle->GPIO_Pin_config.GPIO_PinNumber>7 && GPIO_Handle->GPIO_Pin_config.GPIO_PinNumber <=11)
+
+				{
+					if(GPIO_Handle->pGPIOx == GPIOA)
+					{
+						SYSCFG->SYSCFG_EXTICR3 |= (GPIO_SYSCFG_MODE_A << (4 * (GPIO_Handle->GPIO_Pin_config.GPIO_PinNumber%8))) ;
+					}
+					else if(GPIO_Handle->pGPIOx == GPIOB)
+					{
+						SYSCFG->SYSCFG_EXTICR3 |= (GPIO_SYSCFG_MODE_B << (4 * (GPIO_Handle->GPIO_Pin_config.GPIO_PinNumber%8))) ;
+					}
+					else if(GPIO_Handle->pGPIOx == GPIOC)
+					{
+						SYSCFG->SYSCFG_EXTICR3 |= (GPIO_SYSCFG_MODE_C << (4 * (GPIO_Handle->GPIO_Pin_config.GPIO_PinNumber%8))) ;
+					}
+					else if(GPIO_Handle->pGPIOx == GPIOD)
+					{
+						SYSCFG->SYSCFG_EXTICR3 |= (GPIO_SYSCFG_MODE_D << ((4 * GPIO_Handle->GPIO_Pin_config.GPIO_PinNumber%8))) ;
+					}
+					else if(GPIO_Handle->pGPIOx == GPIOE)
+					{
+						SYSCFG->SYSCFG_EXTICR3 |= (GPIO_SYSCFG_MODE_E << ((4 * GPIO_Handle->GPIO_Pin_config.GPIO_PinNumber%8))) ;
+					}
+					else if(GPIO_Handle->pGPIOx == GPIOH)
+					{
+						SYSCFG->SYSCFG_EXTICR3 |= (GPIO_SYSCFG_MODE_H << ((4 * GPIO_Handle->GPIO_Pin_config.GPIO_PinNumber%8))) ;
+					}
+
+				}
+
+				else if(GPIO_Handle->GPIO_Pin_config.GPIO_PinNumber>11 && GPIO_Handle->GPIO_Pin_config.GPIO_PinNumber <=15)
+				{
+					if(GPIO_Handle->pGPIOx == GPIOA)
+					{
+						SYSCFG->SYSCFG_EXTICR4 |= (GPIO_SYSCFG_MODE_A << (4 * (GPIO_Handle->GPIO_Pin_config.GPIO_PinNumber%12))) ;
+					}
+					else if(GPIO_Handle->pGPIOx == GPIOB)
+					{
+						SYSCFG->SYSCFG_EXTICR4 |= (GPIO_SYSCFG_MODE_B << (4 * (GPIO_Handle->GPIO_Pin_config.GPIO_PinNumber%12))) ;
+					}
+					else if(GPIO_Handle->pGPIOx == GPIOC)
+					{
+						SYSCFG->SYSCFG_EXTICR4 |= (GPIO_SYSCFG_MODE_C << (4 * (GPIO_Handle->GPIO_Pin_config.GPIO_PinNumber%12))) ;
+					}
+					else if(GPIO_Handle->pGPIOx == GPIOD)
+					{
+						SYSCFG->SYSCFG_EXTICR4 |= (GPIO_SYSCFG_MODE_D << (4 * (GPIO_Handle->GPIO_Pin_config.GPIO_PinNumber%12))) ;
+					}
+					else if(GPIO_Handle->pGPIOx == GPIOE)
+					{
+						SYSCFG->SYSCFG_EXTICR4 |= (GPIO_SYSCFG_MODE_E << (4 * (GPIO_Handle->GPIO_Pin_config.GPIO_PinNumber%12))) ;
+					}
+					else if(GPIO_Handle->pGPIOx == GPIOH)
+					{
+						SYSCFG->SYSCFG_EXTICR4 |= (GPIO_SYSCFG_MODE_H << (4 * (GPIO_Handle->GPIO_Pin_config.GPIO_PinNumber%12))) ;
+					}
+				}
+		/*_______________________// INITLISAZE THE INTERRUPT OF EXTI ACCORDING TO PIN________________________________________________*/
+
+				EXTI->EXTI_IMR |= (1<< GPIO_Handle->GPIO_Pin_config.GPIO_PinNumber);		// pushed that bit to interrupt mask register
 	}
 
 		// speed of the pin initiated
@@ -277,6 +277,10 @@ void GPIO_Init(GPIOx_Handle *GPIO_Handle)
 			}
 		}
 }
+/*
+ *
+ *
+ */
 void GPIO_DeInit(GPIO_Reg_Def *GPIO)
 {
 	if(GPIO == GPIOA)
