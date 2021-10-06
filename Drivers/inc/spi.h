@@ -71,6 +71,7 @@ uint8_t SPI_BusyFlag(SPI_RegDef_t *SPI_Handle);
 void Clear_OVRflag(SPI_Handle_t *SPI_Handle);
 void Close_Transmission(SPI_Handle_t *SPI_Handle);
 void Close_Reception(SPI_Handle_t *SPI_Handle);
+__weak__ void SPI_EVENTCALLBACK_FUNCTION(SPI_Handle_t *pSPI_Handle_t, uint8_t Appev); // only activated when called in the main function
 
 
 

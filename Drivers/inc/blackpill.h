@@ -27,7 +27,7 @@
 #define DISABLE 		0
 #define SET				ENABLE
 #define RESET			DISABLE
-#define __weak__			__attribute__((weak))
+#define __weak__		__attribute__((weak))
 /*-------------------------------------------------Processor specific details--------------------------------------------*/
 
 #define NVIC_ISER0		((__vol uint32_t *) 0xE000E100)
@@ -81,6 +81,7 @@
 #define I2S5_BASE_ADDR				SPI5_BASE_ADDR
 
 #define EXTI_BASE_ADDR				0x40013C00UL
+#define FLASH_INTERFACE_ADDR		0x40023C00UL	// Flash interface register used system clock setup
 
 
 
@@ -192,6 +193,8 @@ typedef struct
 }RCC_Reg_Def;
 
 #define RCC    		((RCC_Reg_Def *)RCC_BASE_ADDR)
+
+#define HSE_ON
 
 /*---------------------------------------------EXTERNAL INTTERUPT MEMORY STRUCTURE---------------------------------------------------------*/
 
@@ -357,14 +360,37 @@ typedef struct
 
 /*			Structure pointers for different I2C's			*/
 
-#define I2C1			(*(I2C_RegDef_t *)I2C1_BASE_ADDR)
-#define I2C2			(*(I2C_RegDef_t *)I2C2_BASE_ADDR)
-#define I2C3			(*(I2C_RegDef_t *)I2C3_BASE_ADDR)
+#define I2C1			((I2C_RegDef_t *)I2C1_BASE_ADDR)
+#define I2C2			((I2C_RegDef_t *)I2C2_BASE_ADDR)
+#define I2C3			((I2C_RegDef_t *)I2C3_BASE_ADDR)
 /*					Clock enable macros						*/
-#define I2C1_CLOCK_EN()	(RCC->RCC-APB1 |= (1<<21))
-#define I2C2_CLOCK_EN()	(RCC->RCC-APB1 |= (1<<22))
-#define I2C3_CLOCK_EN()	(RCC->RCC-APB1 |= (1<<23))
+#define I2C1_CLOCK_EN()		(RCC->RCC_APB1ENR |= (1<<21))
+#define I2C2_CLOCK_EN()		(RCC->RCC_APB1ENR |= (1<<22))
+#define I2C3_CLOCK_EN()		(RCC->RCC_APB1ENR |= (1<<23))
 
+#define I2C1_CLOCK_DI()		(RCC->RCC_APB1ENR &= ~(1<<21))
+#define I2C2_CLOCK_DI()		(RCC->RCC_APB1ENR &= ~(1<<22))
+#define I2C3_CLOCK_DI()		(RCC->RCC_APB1ENR &= ~(1<<23))
 
+/***************************************************************************
+ *
+ *
+ * Flash Interface Register map structure init
+ *
+ *
+ ***************************************************************************/
+
+typedef struct
+{
+	uint32_t __vol	FLASH_ACR;
+	uint32_t __vol	FLASH_KEYR;
+	uint32_t __vol	FLASH_OPTKEYR;
+	uint32_t __vol	FLASH_SR;
+	uint32_t __vol	FLASH_CR;
+	uint32_t __vol	FLASH_OPTCR;
+
+}Flash_Reg_Def;
+
+#define FLASH 	((Flash_Reg_Def *)FLASH_INTERFACE_ADDR)
 
 #endif /* DRIVERS_INC_BLACKPILL_H_ */
