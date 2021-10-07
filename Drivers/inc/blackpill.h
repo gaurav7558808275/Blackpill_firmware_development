@@ -56,7 +56,7 @@
 
 #define AHB2_BASE_ADDR				0X50000000UL	//AHB2 BASE ADDRESS - VALUE FROM REFERENCE MANUAL
 #define RCC_BASE_ADDR				0x40023800UL	// RCC BASE ADDRESS FROM MEMORY MAP
-
+#define PWR_BASE_ADDR				0X40007000UL	// PWR base register address.
 
 /*---------------------------------PERIPHERALS ON AHB1 BUS--------------------------------------------------------*/
 
@@ -393,4 +393,18 @@ typedef struct
 
 #define FLASH 	((Flash_Reg_Def *)FLASH_INTERFACE_ADDR)
 
+
+/*********************************************************************************
+ * PWR register Init
+ * *******************************************************************************
+ */
+
+
+typedef struct
+{
+	uint32_t __vol  PWR_CR;
+	uint32_t __vol	PWR_CSR;
+}Pwr_Reg_Def;
+
+#define PWR		((Pwr_Reg_Def*)PWR_BASE_ADDR)
 #endif /* DRIVERS_INC_BLACKPILL_H_ */
