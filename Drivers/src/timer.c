@@ -59,18 +59,18 @@ void system_clk_init()
 	RCC->RCC_PLLCFGR |= (1<<22);
 	/*
 	 * setting PLLM according to the clock in CUBEmx ( for easiness)
-	 * according to the prescalar /8 - Push value 8
+	 * according to the prescalar /12 - Push value 12
 	 */
-	RCC->RCC_PLLCFGR |= (8 << 0);
+	RCC->RCC_PLLCFGR |= (12 << 0);
 	/*
 	 *  PLLN settings
-	 *  /84 IN PUSHED
+	 *  /96 IN PUSHED
 	 *
 	 */
-	RCC->RCC_PLLCFGR |= (84<<6);
+	RCC->RCC_PLLCFGR |= (96<<6);
 	/*
 	 *PLLP SETTING
-	 *PLLP /2 IS PUSHED
+	 *PLLP /2  so  000 IS PUSHED
 	 */
 	RCC->RCC_PLLCFGR &= ~(1<<16); // set to zero
 	/*
