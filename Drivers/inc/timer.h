@@ -34,14 +34,10 @@
 #define latency_wait_sate_14 		14
 
 
-typedef struct
-{
-	RCC_Reg_Def *timer_handle;
 
-}Timer_Handle;
 
-void  MCO_pin_conf();
-void system_clk();
+void  MCO_pin_config();
+void  system_clk_init();
 
 
 

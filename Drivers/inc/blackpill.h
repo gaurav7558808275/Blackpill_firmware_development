@@ -194,7 +194,7 @@ typedef struct
 
 #define RCC    		((RCC_Reg_Def *)RCC_BASE_ADDR)
 
-#define HSE_ON
+
 
 /*---------------------------------------------EXTERNAL INTTERUPT MEMORY STRUCTURE---------------------------------------------------------*/
 

@@ -17,8 +17,8 @@
  *4. Set the PWR bit[15] to 1
  *5. Set the ICEN bit[9], PRFTEN Bit[8] , DCEN bit[10] to 1 and Latency to 3
  *6. Set respective prescalar of PLL_CFGR register
- *7. PLLM - /25 - RCC_PLLCFGR bit[0] set to 25
- *8. PLLN - x168 - RCC_PLLCFGR bit[6] set to 168
+ *7. PLLM - /8 - RCC_PLLCFGR bit[0] set to 8
+ *8. PLLN - x84 - RCC_PLLCFGR bit[6] set to 84
  *9. PLLP - /2	 - RCC_PLLCFGR bit[16] set to 0
  *10. Configure the AHB APB1 and APB2 buss prescalar
  *11. Configuration in RCC_CFGR - APB1 bit[10] to 100 for /2 prescalar
@@ -28,12 +28,23 @@
  *14.  wait for PLLRDY - RCC_CR bit[25] in while
  *15. turn on the sysclk as PLL by setting bit[0] in RCC_CFGR to 2
  *16. Check bit [2] in RCC_CFGR if ready.
+ *17. Activate the MCO1 clock as HSE and corresponding Prescalar
  */
 
 
-void system_clk();
+void system_clk_init();
+void  MCO_pin_config();
+void  MCO_pin_config()
+{
+		// From reference manual MCO1 Pin is PA8 setting PA8 now.
+	GPIOA_CLK_EN();
+	GPIOA->MODER |= (2<<16);    // ALTERNATE FUNCTION
+	GPIOA->OTYPER &= ~(1<<8);	// SET AS PUSH PULL
+	GPIOA->OSPEEDR |= (3<<16);  // SPEED SET TO FAST
+	GPIOA->AFRH &= ~(0X0F<< 0); // ALTERNATE FUNCTION SET TO AF0 FOR MCO1, INFO FROM DATASHEET
+}
 
-void system_clk()
+void system_clk_init()
 {
 	RCC->RCC_CR |= 1<<16; // We will use HSE. HSE bit set
 	while(!(RCC->RCC_CR & (1 << 17))); 	// HSE ready bit check condition
@@ -47,7 +58,7 @@ void system_clk()
 	 */
 	RCC->RCC_PLLCFGR |= (1<<22);
 	/*
-	 * setting PLLM according to the clock in CUBEmx
+	 * setting PLLM according to the clock in CUBEmx ( for easiness)
 	 * according to the prescalar /8 - Push value 8
 	 */
 	RCC->RCC_PLLCFGR |= (8 << 0);
@@ -76,9 +87,15 @@ void system_clk()
 	RCC->RCC_CFGR |= (2<<0);
 	while(!(RCC->RCC_CFGR & (2<<1)));
 
-	//Call SystemCoreClockUpdate() to update SystemCoreClock variable.
+	// Clock to microcontroller
+	/*
+	 * Setup the MCO1 pin in alternate functions
+	 * // MCO1 Prescalar setup. /1 so push
+	 *
+	 */
 
-
-
-
+	MCO_pin_config(); // Function for Pin setup.
+	RCC->RCC_CFGR &= ~(3<<24); // Prescalar is set to /1 no presclar on bit[26:24]
+	RCC->RCC_CFGR |= (3<<21); // PLL selected 11 (3) pushed
+	// MICROCONTROLLER WORKS AT 25MHZ.
 }
