@@ -98,6 +98,7 @@
 #define I2C1_BASE_ADDR				0x40004400UL
 #define I2C2_BASE_ADDR				0x40005400UL		// I2C's
 #define I2C3_BASE_ADDR				0x40005800UL
+#define TIMER2_BASE_ADDR			0x40000000UL       // Timer 2 base address
 
 /*-------------------------------------GPIO PERIPHERAL STRUCTURE-----------------------------------------------*/
 
@@ -407,4 +408,38 @@ typedef struct
 }Pwr_Reg_Def;
 
 #define PWR		((Pwr_Reg_Def*)PWR_BASE_ADDR)
+/*
+ * Timer register structure init.
+ *
+ */
+typedef struct
+{
+	uint32_t __vol TIM2_CR1;  //
+	uint32_t __vol TIM2_CR2;
+	uint32_t __vol TIM2_SMCR;
+	uint32_t __vol TIM2_DIER;
+	uint32_t __vol TIM2_SR;
+	uint32_t __vol TIM2_EGR;
+	uint16_t __vol TIM2_CCMR1_IN;
+	uint16_t __vol TIM2_CCMR1_OP;
+	uint32_t __vol TIM2_CCMR2_IN;
+	uint32_t __vol TIM2_CCMR2_OP;
+	uint32_t __vol TIM2_CCER;
+	uint32_t __vol TIM2_CNT;
+	uint32_t __vol TIM2_PSC;
+	uint32_t __vol TIM2_ARR;
+	uint32_t __vol TIM2_CCR1;
+	uint32_t __vol TIM2_CCR2;
+	uint32_t __vol TIM2_CCR3;
+	uint32_t __vol TIM2_CCR4;
+	uint32_t __vol RESERVED1;
+	uint32_t __vol TIM2_DCR;
+	uint32_t __vol TIM2_DMAR;
+	uint32_t __vol TIM2_OR;
+	uint32_t __vol TIM5_OR;
+
+}Tim_Reg_Def;
+
+#define TIMER_2     ((Tim_Reg_Def *)TIMER2_BASE_ADDR)
+
 #endif /* DRIVERS_INC_BLACKPILL_H_ */

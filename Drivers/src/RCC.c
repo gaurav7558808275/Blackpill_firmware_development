@@ -9,7 +9,7 @@
 #include "blackpill.h"
 #include "RCC.h"
 
-     // clock can be set equal to 84Mhz
+     // clock can be set equal to 100Mhz
 /*1. Set the HSE bit[16] is set to 1 for external HSE clock on.
  *2. Check the HSERDY bit[17] is set or not. in while loop.
  *3. Set the bit PWR_EN bit[28]
