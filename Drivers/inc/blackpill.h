@@ -248,7 +248,7 @@ typedef struct
  *
  * */
 
-/*TODO : Bit position definitionneeds to be done*/
+/*TODO : Bit position definition needs to be done*/
 
 // SPI IRQ numbers from vector Table
 #define IRQ_N_SPI1			34
@@ -259,16 +259,16 @@ typedef struct
 
 typedef struct
 {
-	uint32_t	SPI_CR1;		// Info from reference manual
-	uint32_t	SPI_CR2;
-	uint32_t	RESERVED0;
-	uint32_t	SPI_SR;
-	uint32_t	SPI_DR;
-	uint32_t	SPI_CRCPR;
-	uint32_t	SPIRXCRCR;
-	uint32_t	SPITXCRCR;
-	uint32_t 	SPI_I2SCFGR;
-	uint32_t	SPI_I2CPR;
+	uint32_t __vol	SPI_CR1;		// Info from reference manual
+	uint32_t __vol	SPI_CR2;
+	uint32_t __vol	RESERVED0;
+	uint32_t __vol	SPI_SR;
+	uint32_t __vol	SPI_DR;
+	uint32_t __vol	SPI_CRCPR;
+	uint32_t __vol	SPIRXCRCR;
+	uint32_t __vol	SPITXCRCR;
+	uint32_t __vol	SPI_I2SCFGR;
+	uint32_t __vol	SPI_I2CPR;
 
 }SPI_RegDef_t;
 
@@ -345,16 +345,16 @@ typedef struct
 
 typedef struct
 {
-	uint32_t	I2C_CR1;
-	uint32_t	I2C_CR2;
-	uint32_t	I2C_0AR1;
-	uint32_t	I2C_OAR2;
-	uint32_t	I2C_DR;
-	uint32_t	I2C_SR1;
-	uint32_t	I2C_SR2;
-	uint32_t	I2C_CCR;
-	uint32_t	I2C_TRISE;
-	uint32_t	I2C_FLTR;
+	uint32_t __vol	I2C_CR1;
+	uint32_t __vol	I2C_CR2;
+	uint32_t __vol	I2C_0AR1;
+	uint32_t __vol	I2C_OAR2;
+	uint32_t __vol	I2C_DR;
+	uint32_t __vol	I2C_SR1;
+	uint32_t __vol	I2C_SR2;
+	uint32_t __vol	I2C_CCR;
+	uint32_t __vol	I2C_TRISE;
+	uint32_t __vol	I2C_FLTR;
 
 }I2C_RegDef_t;
 
