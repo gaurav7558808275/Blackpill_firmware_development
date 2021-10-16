@@ -83,6 +83,7 @@
 #define EXTI_BASE_ADDR				0x40013C00UL
 #define FLASH_INTERFACE_ADDR		0x40023C00UL	// Flash interface register used system clock setup
 
+#define ADC1_BASE_ADDR				0X040012000 // ADC BASE ADDRESS
 
 
 /*----------------------------------APB1 PERIPHERALS------------------------------------------------------------*/
@@ -442,4 +443,38 @@ typedef struct
 
 #define TIMER_2     ((Tim_Reg_Def *)TIMER2_BASE_ADDR)
 
+
+/*
+ * ADC Register Structure init
+ *
+ */
+
+typedef struct
+{
+
+	uint32_t __vol ADC_SR;
+	uint32_t __vol ADC_CR1;
+	uint32_t __vol ADC_CR2;
+	uint32_t __vol ADC_SMRP1;
+	uint32_t __vol ADC_SMRP2;
+	uint32_t __vol ADC_JOFR1;
+	uint32_t __vol ADC_JOFR2;
+	uint32_t __vol ADC_JOFR3;
+	uint32_t __vol ADC_JOFR4;
+	uint32_t __vol ADC_HTR;
+	uint32_t __vol ADC_LTR;
+	uint32_t __vol ADC_SQR1;
+	uint32_t __vol ADC_SQR2;
+	uint32_t __vol ADC_SQR3;
+	uint32_t __vol ADC_JSQR;
+	uint32_t __vol ADC_JDR1;
+	uint32_t __vol ADC_JRD2;
+	uint32_t __vol ADC_JRD3;
+	uint32_t __vol ADC_JRD4;
+	uint32_t __vol ADC_DR;
+
+}ADC_Reg_Def;
+
+
+#define ADC1  		((ADC_Reg_Def*)ADC1_BASE_ADDR)
 #endif /* DRIVERS_INC_BLACKPILL_H_ */

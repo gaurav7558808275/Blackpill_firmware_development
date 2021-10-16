@@ -13,7 +13,7 @@ void us_delay(uint16_t us);
 void ms_delay(uint16_t ms);
 void s_delay(uint16_t s);
 
-timer_init()
+void timer_init()
 {
 	TIMER_2->TIM2_CR1 &= ~(1<<0); //CEN disabled
 	TIMER_2->TIM2_SR &=~(1<0);	  // UIF BIT disabled
@@ -26,8 +26,8 @@ timer_init()
 
 	TIMER_2->TIM2_CR1 |= (1<<1);  // UDIS SET, UPDATE EVENT NOT GENERATED
 /************************ SETUP FOR PSC AND ARR *********/
-	TIMER_2->TIM2_PSC |=0;   // ACORDING TO CALCULATION
-	TIMER_2->TIM2_ARR |=32;	 // ACCORDING TO CALCULATION
+	TIMER_2->TIM2_PSC |=0;       // ACORDING TO CALCULATION refer timer.h
+	TIMER_2->TIM2_ARR |=100;	 // ACCORDING TO CALCULATION
 
 	TIMER_2->TIM2_CR1 &= ~(1<<1); // UDIS RESET, UPDATE EVENT GENERATED
 	TIMER_2->TIM2_EGR |= (1<<0);  // reload back the counter check the EGR register
@@ -35,7 +35,7 @@ timer_init()
 
 }
 
-us_delay(uint16_t us)
+void us_delay(uint16_t us)
 {
 	TIMER_2->TIM2_CR1 |=(1<<0); // TIMER ON
 	TIMER_2->TIM2_CNT |= 0X00000000; // RESET COUNTER

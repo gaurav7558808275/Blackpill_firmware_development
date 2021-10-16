@@ -33,6 +33,7 @@
 
 void system_clk_init();
 void  MCO_pin_config();
+
 void  MCO_pin_config()
 {
 		// From reference manual MCO1 Pin is PA8 setting PA8 now.
