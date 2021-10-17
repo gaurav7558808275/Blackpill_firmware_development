@@ -107,6 +107,7 @@ typedef struct
  * FUNCTON PROTOTYPES FOR GPIO
  */
 
+
 void GPIO_Clock_EN(GPIO_Reg_Def *GPIO , uint8_t S_O_R);
 
 void GPIO_Init(GPIOx_Handle *GPIO_Handle);
