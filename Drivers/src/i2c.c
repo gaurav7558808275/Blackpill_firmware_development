@@ -18,7 +18,7 @@ void I2C_Clock_DE(I2C_RegDef_t *pI2Cx);
 void I2C_Init(I2C_Handle_t *I2C_Handle);
 void I2C_Deinit(I2C_Handle_t *I2C_Handle);
 
-void I2C_Send(I2C_RegDef_t * pI2Cx, uint8_t *tx_buff , uint32_t length);
+void I2C_MasterSend(I2C_Handle_t *pI2CHandle, uint8_t *ptx_buff , uint32_t length,uint8_t Sadd);
 void I2C_Receive(I2C_RegDef_t *pI2Cx, uint8_t *rx_buff , uint32_t length);
 
 uint8_t I2C_Send_IT(I2C_Handle_t * pI2C_Handle_t, uint8_t *tx_buff , uint32_t length);
@@ -39,8 +39,9 @@ void Close_Reception(I2C_Handle_t *I2C_Handle);
 
 // Sub-functions
 uint32_t CLK_Freq_calculate(void);
-
-
+static void I2C_GenerateStartCondition(I2C_RegDef_t *pI2C_Handle);
+static void ExecuteAddress(I2C_RegDef_t * pI2CHandle,uint8_t Saddr);
+static void Read_clear_ADDR(I2C_RegDef_t *pI2CHandle);
 
 void I2C_Clock_EN(I2C_RegDef_t *pI2Cx )	// I2C Clock Initialize
 {
@@ -80,7 +81,9 @@ void I2C_Clock_DE(I2C_RegDef_t *pI2Cx)
 		}
 
 }
-
+/*
+ * LOCAL FUNCTION FOR CLOCK GENERATION FOR I2C_Init()
+ */
 uint32_t CLK_Freq_Calculate(void)
 {
 	uint8_t pcklk = 0,prescalarahb =0 ,prescalarapb1 =0;
@@ -168,4 +171,40 @@ void I2C_Init(I2C_Handle_t *I2C_Handle){
 	I2C_Handle->pI2Cx->I2C_CCR |=tempreg;
 
 	// todo : Setup the T_rise register
+}
+
+/*
+ *	LOCAL FUNCTION FOR MASTER SEND and Main Master Send available here!
+ *
+ */
+
+
+void I2C_MasterSend(I2C_Handle_t *pI2CHandle, uint8_t *ptx_buff , uint32_t length,uint8_t Saddr){
+
+	// 1. initiate the start condition
+	I2C_GenerateStartCondition(pI2CHandle->pI2Cx);
+	//  2 .CHECK FLAG - confirm the start condition by checking the SB bit[0] in	SR1 register
+	while(!(pI2CHandle->pI2Cx->I2C_SR1 & (1<<0)));
+	// EXECUTE THE ADDRESS PHASE send the address with 7 bit and r/w bit in the end
+	ExecuteAddress(pI2CHandle->pI2Cx,Saddr);
+	// confirm that the address phase is compleetd by checking the SR1 register bit[1] ADDR
+	// need to clear the ADDR flag by reading from it.
+	Read_clear_ADDR(pI2CHandle->pI2Cx);
+	//
+}
+
+
+static void I2C_GenerateStartCondition(I2C_RegDef_t *pI2C_Handle){
+	pI2C_Handle->I2C_CR1 |= (1<<8);  //BIT[8] = START BIT CHECK REFERENCE MANUAL
+}
+static void ExecuteAddress(I2C_RegDef_t *pI2CHandle,uint8_t Saddr){
+	Saddr = Saddr << 1 ;
+	Saddr &= ~(1<<0);
+	Saddr |= pI2CHandle->I2C_DR;
+}
+static void Read_clear_ADDR(I2C_RegDef_t *pI2C_Handle){
+	uint8_t Dummy =0;
+	Dummy |= pI2C_Handle->I2C_SR1;
+	Dummy |= pI2C_Handle->I2C_SR2;
+	(void)Dummy;
 }
