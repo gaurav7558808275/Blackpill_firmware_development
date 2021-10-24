@@ -159,7 +159,7 @@ void I2C_Init(I2C_Handle_t *I2C_Handle){
 	else {
 		// fast mode setup
 		I2C_Handle->pI2Cx->I2C_CCR |= (1<<15); // set the fast mode
-		tempreg |= (I2C_Handle->I2C_Config.I2C_FMduty << 14);
+		tempreg |= (I2C_Handle->I2C_Config.I2C_FMduty << 14); // TODO: check the function
 		if(I2C_Handle->I2C_Config.I2C_FMduty == I2C_FMDUTY_2 ){
 			CCR_value |= ((CLK_Freq_Calculate() / 3 * I2C_Handle->I2C_Config.I2C_SCL_Speed)); // check the reference manual and converted to frequency domain
 		}
@@ -171,6 +171,20 @@ void I2C_Init(I2C_Handle_t *I2C_Handle){
 	I2C_Handle->pI2Cx->I2C_CCR |=tempreg;
 
 	// todo : Setup the T_rise register
+	/*
+	 * 	If, in the I2C_CR2 register, the value of FREQ[5:0] bits is equal to 0x08 and TPCLK1 = 125 ns
+		therefore the TRISE[5:0] bits must be programmed with 09h.
+		(1000 ns / 125 ns = 8 + 1)
+	 */
+	if(I2C_Handle->I2C_Config.I2C_SCL_Speed <= I2C_SCL_SM_SPEED ){
+		// set up the trise for SM mode
+		tempreg |= (CLK_Freq_Calculate()/ 1000000U) +1; //  1Mhz max for standard mode
+	}
+	else{
+		// set the trisde for FM mode
+		tempreg |= (CLK_Freq_Calculate()*300U / 1000000000U) +1;
+	}
+	I2C_Handle->pI2Cx->I2C_TRISE |= (tempreg & 0x1F);
 }
 
 /*
