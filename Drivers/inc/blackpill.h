@@ -5,7 +5,7 @@
  *      Author: Gaurav
  *
  *
- *      **********MCU Specific header file for Blacpi Pill************
+ *      **********MCU Specific header file for Black Pill************
  *
  *
  *
@@ -349,7 +349,7 @@ typedef struct
 {
 	uint32_t __vol	I2C_CR1;
 	uint32_t __vol	I2C_CR2;
-	uint32_t __vol	I2C_0AR1;
+	uint32_t __vol	I2C_OAR1;
 	uint32_t __vol	I2C_OAR2;
 	uint32_t __vol	I2C_DR;
 	uint32_t __vol	I2C_SR1;
@@ -373,6 +373,8 @@ typedef struct
 #define I2C1_CLOCK_DI()		(RCC->RCC_APB1ENR &= ~(1<<21))
 #define I2C2_CLOCK_DI()		(RCC->RCC_APB1ENR &= ~(1<<22))
 #define I2C3_CLOCK_DI()		(RCC->RCC_APB1ENR &= ~(1<<23))
+
+
 
 /***************************************************************************
  *

@@ -13,11 +13,14 @@
 /*
  *		SCL Speed Setup.
  *		Its 100KHz for std mode
- *		Its 400kHz for speed mode
+ *		Its 400KHz for speed mode
+ *		possible to create more speed macros also.
+ *		anything more than 100Khz is considered fast mode!
  *
  */
+
 #define I2C_SCL_SM_SPEED	100000
-#define I2C_SCL_PM_SPEED	400000
+#define I2C_SCL_FM_SPEED	400000
 /*
  * 	ACK CONTROL
  *
@@ -70,7 +73,6 @@ uint8_t I2C_Send_IT(I2C_Handle_t * pI2C_Handle_t, uint8_t *tx_buff , uint32_t le
 uint8_t I2C_Receive_IT(I2C_Handle_t *pI2C_Handle_t, uint8_t *rx_buff , uint32_t length);
 
 void I2C_IRQ_IT_config(uint8_t IRQ_Number, uint8_t S_O_R);  // SET OR RESET
-void I2C_IRQ_Handling(I2C_Handle_t *pI2C_Handle_t );
 void I2C_Priority_Config(uint8_t IRQ_number , uint32_t priority);
 
 void I2C_Peripheral_Control(I2C_RegDef_t *I2C_Handle, uint8_t S_O_R);
@@ -78,9 +80,7 @@ void I2C_SSI_Enable(I2C_RegDef_t *I2C_Handle, uint8_t S_O_R);
 void I2C_SSOE_Enable(I2C_RegDef_t *I2C_Handle, uint8_t S_O_R);
 uint8_t I2C_BusyFlag(I2C_RegDef_t *I2C_Handle);
 
-void Clear_OVRflag(I2C_Handle_t *I2C_Handle);
-void Close_Transmission(I2C_Handle_t *I2C_Handle);
-void Close_Reception(I2C_Handle_t *I2C_Handle);
+
 
 // Sub-functions
 uint32_t CLK_Freq_calculate(void);
@@ -90,7 +90,7 @@ uint32_t CLK_Freq_calculate(void);
  */
 #define CLK_HSI		16000000
 #define CLK_HSE		8000000
-#define CLK_PLL		2;  //TODO a fuunction can be created to calculate the PLL if selected
+#define CLK_PLL		2;  //TODO a function can be created to calculate the PLL if selected
 
 
 

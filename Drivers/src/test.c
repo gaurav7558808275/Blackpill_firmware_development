@@ -50,11 +50,11 @@ void search()
 		for(volatile int i = 16 ; i< 19 ;i++){
 			if(Bytes[i] == '1'){
 				gpio.pGPIOx = GPIOA;  // CUSTOM SELECTED FOR MY MICROCONTROLLER
-				GPIO_Init(GPIOA);
+				GPIO_Init(&gpio);
 			}
 			else if(Bytes[i] == '0'){
 				gpio.pGPIOx = GPIOB;
-				GPIO_Init(GPIOB);
+				GPIO_Init(&gpio);
 			}
 		}
 	 }
@@ -63,7 +63,8 @@ void search()
 	// Dint understand the 8th and 9th point.
 
 	if(Bytes[20] == 'd'){
-		if((Bytes[21] == '2') && (Bytes[23] == '100')){
+		if((Bytes[21] == '2') && (Bytes[23] == '100')){  /*char intialted.
+															*/
 			//PWM1_Init(GPIOA);
 			}
 		else if((Bytes[21] == '2') && (Bytes[23] == '=')){

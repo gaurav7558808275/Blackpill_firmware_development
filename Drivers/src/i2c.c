@@ -99,7 +99,7 @@ uint32_t CLK_Freq_Calculate(void)
 		clksrc = CLK_PLL;
 		}
 
-	temp = ((RCC->RCC_CFGR >>7) & 0XF); // prescalar for AHB
+	temp = ((RCC->RCC_CFGR >> 4) & 0XF); // prescalar for AHB
 	if(temp <8)
 		{
 		prescalarahb = 1;
@@ -108,7 +108,7 @@ uint32_t CLK_Freq_Calculate(void)
 		{
 		prescalarahb = AHB_Prescalar_arr[temp-8];
 		}
-	temp = ((RCC->RCC_CFGR >>12) & 0XF);// prescalar for APB
+	temp = ((RCC->RCC_CFGR >> 10) & 0XF);// prescalar for APB
 	if(temp <4)
 		{
 			prescalarapb1 = 1;
@@ -123,16 +123,49 @@ uint32_t CLK_Freq_Calculate(void)
 	return pcklk;
 }
 
-void I2C_Init(I2C_Handle_t *I2C_Handle)
-{
+void I2C_Init(I2C_Handle_t *I2C_Handle){
+
 	// 1) taking the ACK enable.from CR1
 	uint32_t tempreg = 0;
 	tempreg |= I2C_Handle->I2C_Config.I2C_ACKControl << 10;  // ACK bit read
 
-	// configure the FREQ assign
+	// configure the FREQ assign in CR2 register
 	tempreg = 0;
-	tempreg = CLK_Freq_Calculate() / 1000000UL;  // need only the value
-	I2C_Handle->pI2Cx->I2C_CR2 = (tempreg & 0x3F);
+	tempreg = CLK_Freq_Calculate() / 1000000UL;  // need only the value(Hz-Mhz conversion)
+	I2C_Handle->pI2Cx->I2C_CR2 |= (tempreg & 0x3F);  //  I2C_Handle->pI2Cx->I2C_CR2 |= (tempreg & 0x3F)
 
+	// register I2C_OAR2 Program device own address
+	tempreg = I2C_Handle->I2C_Config.I2C_Device_Addr << 1; //ADD[0] is Ignored
+	I2C_Handle->pI2Cx->I2C_OAR1 |= (tempreg & 0xFE); // FROM BIT[1]
+	I2C_Handle->pI2Cx->I2C_OAR1 &= ~(1<<15);  // 7 bit addressing
+	tempreg |=(1<<4);
+	I2C_Handle->pI2Cx->I2C_OAR1 |= tempreg;
+	uint16_t CCR_value =0;
+	tempreg =0;
 
+	/*________________________________________*/
+
+	// CCR - Setting up speed
+	if(I2C_Handle->I2C_Config.I2C_SCL_Speed <= I2C_SCL_SM_SPEED ){
+		// it is standard mode
+		I2C_Handle->pI2Cx->I2C_CCR &=(1<<15); // to setup sm mode
+		CCR_value = ((CLK_Freq_Calculate() / 2 * I2C_Handle->I2C_Config.I2C_SCL_Speed));
+		tempreg |= (CCR_value & 0xFFF);
+	}
+
+	else {
+		// fast mode setup
+		I2C_Handle->pI2Cx->I2C_CCR |= (1<<15); // set the fast mode
+		tempreg |= (I2C_Handle->I2C_Config.I2C_FMduty << 14);
+		if(I2C_Handle->I2C_Config.I2C_FMduty == I2C_FMDUTY_2 ){
+			CCR_value |= ((CLK_Freq_Calculate() / 3 * I2C_Handle->I2C_Config.I2C_SCL_Speed)); // check the reference manual and converted to frequency domain
+		}
+		else{
+			CCR_value |= ((CLK_Freq_Calculate() / 25 * I2C_Handle->I2C_Config.I2C_SCL_Speed));
+		}
+		tempreg |= (CCR_value & 0xFFF);
+	}
+	I2C_Handle->pI2Cx->I2C_CCR |=tempreg;
+
+	// todo : Setup the T_rise register
 }
