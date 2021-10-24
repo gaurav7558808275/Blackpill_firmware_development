@@ -185,12 +185,23 @@ void I2C_MasterSend(I2C_Handle_t *pI2CHandle, uint8_t *ptx_buff , uint32_t lengt
 	I2C_GenerateStartCondition(pI2CHandle->pI2Cx);
 	//  2 .CHECK FLAG - confirm the start condition by checking the SB bit[0] in	SR1 register
 	while(!(pI2CHandle->pI2Cx->I2C_SR1 & (1<<0)));
-	// EXECUTE THE ADDRESS PHASE send the address with 7 bit and r/w bit in the end
+	// 3.EXECUTE THE ADDRESS PHASE send the address with 7 bit and r/w bit in the end
 	ExecuteAddress(pI2CHandle->pI2Cx,Saddr);
-	// confirm that the address phase is compleetd by checking the SR1 register bit[1] ADDR
+	// 4.confirm that the address phase is completed by checking the SR1 register bit[1] ADDR
 	// need to clear the ADDR flag by reading from it.
 	Read_clear_ADDR(pI2CHandle->pI2Cx);
-	//
+	// 5.Send data till  length is empty. That can be done by checking the TXE
+	while(length < 0){
+		while(!(pI2CHandle->pI2Cx->I2C_SR1 &(1<<7)));  // txe check
+		pI2CHandle->pI2Cx->I2C_DR = *ptx_buff;
+		ptx_buff ++;
+		length --;
+		}
+	// when the length is empty generate the end set.
+	while(!(pI2CHandle->pI2Cx->I2C_SR1 &(1<<7)));   // TXE bit check
+	while(!(pI2CHandle->pI2Cx->I2C_SR1 & (1<<2)));  // BTF bit check
+	// Generate the stop condition
+	pI2CHandle->pI2Cx->I2C_CR1 |= (1<< 9); // writing into the bit[9] in CR1b
 }
 
 
@@ -199,12 +210,12 @@ static void I2C_GenerateStartCondition(I2C_RegDef_t *pI2C_Handle){
 }
 static void ExecuteAddress(I2C_RegDef_t *pI2CHandle,uint8_t Saddr){
 	Saddr = Saddr << 1 ;
-	Saddr &= ~(1<<0);
+	Saddr &= ~(1<<0);    // adding address and r/w bit in the end
 	Saddr |= pI2CHandle->I2C_DR;
 }
 static void Read_clear_ADDR(I2C_RegDef_t *pI2C_Handle){
-	uint8_t Dummy =0;
+	uint32_t Dummy =0;
 	Dummy |= pI2C_Handle->I2C_SR1;
 	Dummy |= pI2C_Handle->I2C_SR2;
-	(void)Dummy;
+	(void)Dummy; // typecast to void.
 }
