@@ -18,8 +18,8 @@ void I2C_Clock_DE(I2C_RegDef_t *pI2Cx);
 void I2C_Init(I2C_Handle_t *I2C_Handle);
 void I2C_Deinit(I2C_Handle_t *I2C_Handle);
 
-void I2C_MasterSend(I2C_Handle_t *pI2CHandle, uint8_t *ptx_buff , uint32_t length,uint8_t Sadd);
-void I2C_Receive(I2C_RegDef_t *pI2Cx, uint8_t *rx_buff , uint32_t length);
+void I2C_MasterSend(I2C_Handle_t *pI2CHandle, uint8_t *ptx_buff , uint32_t length,uint8_t Sadd); /*Used*/
+void I2C_MasterReceive(I2C_Handle_t *pI2CHandle, uint8_t *prx_buff , uint32_t length,uint8_t Sadd);/*Used*/
 
 uint8_t I2C_Send_IT(I2C_Handle_t * pI2C_Handle_t, uint8_t *tx_buff , uint32_t length);
 uint8_t I2C_Receive_IT(I2C_Handle_t *pI2C_Handle_t, uint8_t *rx_buff , uint32_t length);
@@ -40,9 +40,15 @@ void Close_Reception(I2C_Handle_t *I2C_Handle);
 // Sub-functions
 uint32_t CLK_Freq_calculate(void);
 static void I2C_GenerateStartCondition(I2C_RegDef_t *pI2C_Handle);
-static void ExecuteAddress(I2C_RegDef_t * pI2CHandle,uint8_t Saddr);
+static void ExecuteAddress_Mastersend(I2C_RegDef_t * pI2CHandle,uint8_t Saddr);
+static void ExecuteAddress_MasterReceive(I2C_RegDef_t *pI2CHandle,uint8_t Saddr);
 static void Read_clear_ADDR(I2C_RegDef_t *pI2CHandle);
-
+void I2C_Manage_ACK(I2C_RegDef_t *pI2C, uint8_t S_O_R);
+/*
+ *
+ * Clock enable and disable API's
+ *
+ */
 void I2C_Clock_EN(I2C_RegDef_t *pI2Cx )	// I2C Clock Initialize
 {
 	if(pI2Cx == I2C1)
@@ -65,6 +71,10 @@ void I2C_Clock_EN(I2C_RegDef_t *pI2Cx )	// I2C Clock Initialize
 	}
 
 }
+/*
+ * I2C clock disable API
+ *
+ */
 void I2C_Clock_DE(I2C_RegDef_t *pI2Cx)
 {
 	if(pI2Cx == I2C1)
@@ -81,9 +91,13 @@ void I2C_Clock_DE(I2C_RegDef_t *pI2Cx)
 		}
 
 }
+
 /*
- * LOCAL FUNCTION FOR CLOCK GENERATION FOR I2C_Init()
+ *
+ *  LOCAL FUNCTION FOR CLOCK GENERATION FOR I2C_Init()
+ *
  */
+
 uint32_t CLK_Freq_Calculate(void)
 {
 	uint8_t pcklk = 0,prescalarahb =0 ,prescalarapb1 =0;
@@ -125,7 +139,11 @@ uint32_t CLK_Freq_Calculate(void)
 	pcklk =  (clksrc/prescalarahb) / prescalarapb1; // formulae for calculation of clock.
 	return pcklk;
 }
-
+/*
+ *
+ * I2c init function with clock frequency calculator static function
+ *
+ */
 void I2C_Init(I2C_Handle_t *I2C_Handle){
 
 	// 1) taking the ACK enable.from CR1
@@ -169,8 +187,6 @@ void I2C_Init(I2C_Handle_t *I2C_Handle){
 		tempreg |= (CCR_value & 0xFFF);
 	}
 	I2C_Handle->pI2Cx->I2C_CCR |=tempreg;
-
-	// todo : Setup the T_rise register
 	/*
 	 * 	If, in the I2C_CR2 register, the value of FREQ[5:0] bits is equal to 0x08 and TPCLK1 = 125 ns
 		therefore the TRISE[5:0] bits must be programmed with 09h.
@@ -191,18 +207,17 @@ void I2C_Init(I2C_Handle_t *I2C_Handle){
  *	LOCAL FUNCTION FOR MASTER SEND and Main Master Send available here!
  *
  */
-
-
 void I2C_MasterSend(I2C_Handle_t *pI2CHandle, uint8_t *ptx_buff , uint32_t length,uint8_t Saddr){
 
 	// 1. initiate the start condition
 	I2C_GenerateStartCondition(pI2CHandle->pI2Cx);
 	//  2 .CHECK FLAG - confirm the start condition by checking the SB bit[0] in	SR1 register
 	while(!(pI2CHandle->pI2Cx->I2C_SR1 & (1<<0)));
-	// 3.EXECUTE THE ADDRESS PHASE send the address with 7 bit and r/w bit in the end
-	ExecuteAddress(pI2CHandle->pI2Cx,Saddr);
+	// 3.EXECUTE THE ADDRESS PHASE send the address with 7 bit and r/w bit in the end in this case its R(0)
+	ExecuteAddress_Mastersend(pI2CHandle->pI2Cx,Saddr);
 	// 4.confirm that the address phase is completed by checking the SR1 register bit[1] ADDR
-	// need to clear the ADDR flag by reading from it.
+	while(!(pI2CHandle->pI2Cx->I2C_SR1 & (1<<1)));
+	// need to clear the ADDR flag by reading from it from SR1 and SR2 registers.
 	Read_clear_ADDR(pI2CHandle->pI2Cx);
 	// 5.Send data till  length is empty. That can be done by checking the TXE
 	while(length < 0){
@@ -217,15 +232,18 @@ void I2C_MasterSend(I2C_Handle_t *pI2CHandle, uint8_t *ptx_buff , uint32_t lengt
 	// Generate the stop condition
 	pI2CHandle->pI2Cx->I2C_CR1 |= (1<< 9); // writing into the bit[9] in CR1b
 }
-
-
 static void I2C_GenerateStartCondition(I2C_RegDef_t *pI2C_Handle){
 	pI2C_Handle->I2C_CR1 |= (1<<8);  //BIT[8] = START BIT CHECK REFERENCE MANUAL
 }
-static void ExecuteAddress(I2C_RegDef_t *pI2CHandle,uint8_t Saddr){
+static void ExecuteAddress_Mastersend(I2C_RegDef_t *pI2CHandle,uint8_t Saddr){
 	Saddr = Saddr << 1 ;
-	Saddr &= ~(1<<0);    // adding address and r/w bit in the end
+	Saddr &= ~(1<<0);    // adding address and r/w bit in the end to 0 because its read mode
 	Saddr |= pI2CHandle->I2C_DR;
+}
+static void ExecuteAddress_MasterReceive(I2C_RegDef_t *pI2CHandle,uint8_t Saddr){
+		Saddr = Saddr << 1 ;
+		Saddr |= (1<<0);    // adding address and r/w bit in the end to 0 because its read mode
+		pI2CHandle->I2C_DR |= Saddr;
 }
 static void Read_clear_ADDR(I2C_RegDef_t *pI2C_Handle){
 	uint32_t Dummy =0;
@@ -233,3 +251,81 @@ static void Read_clear_ADDR(I2C_RegDef_t *pI2C_Handle){
 	Dummy |= pI2C_Handle->I2C_SR2;
 	(void)Dummy; // typecast to void.
 }
+
+/*
+ *I2C master receive API
+ *
+ * # Generate the start bit
+ * # Confirm that the start bit by checking the SB flag
+ * # send the address of the slave with R/W bit in this case R(1) (total 8 bit)
+ * # Wait until the address phase is completed by checking the ADDR register
+ */
+void I2C_MasterReceive(I2C_Handle_t *pI2CHandle, uint8_t *prx_buff , uint32_t length, uint8_t Sadd){
+	// Generating the start condition with the sub functions created
+	I2C_GenerateStartCondition(pI2CHandle->pI2Cx);
+	// checking whether the start condition is initiated or not
+	while(!(pI2CHandle->pI2Cx->I2C_SR1 & (1<<0)));
+	// adding the last bit as 0 in this case as we are receive in master mode so separate function created
+	ExecuteAddress_MasterReceive(pI2CHandle->pI2Cx,Sadd);
+	// check the ADDr flag if set or not,Wait until the address phase is over
+	while(!(pI2CHandle->pI2Cx->I2C_SR1 & (1<<1)));
+	// Now clear the SR1 and SR2 read with the help of this function
+	Read_clear_ADDR(pI2CHandle->pI2Cx);
+	// Receive the data has two modes 1) 1byte mode from slave 2) multiple byes from slave
+	// condition if 1 byte is asked from slave
+	if(length < 1){
+
+		// disable the ACK
+		I2C_Manage_ACK(pI2CHandle->pI2Cx,DISABLE);
+		// Generate the stop condition
+		pI2CHandle->pI2Cx->I2C_CR1 |= (1<< 9);
+		// clear the ADDr bit by calling this static API
+		Read_clear_ADDR(pI2CHandle->pI2Cx);
+		// wait until RXNE becomes 1 in SR1 register (Data register not empty)
+		 /* 0: Data register empty
+			1: Data register not empty*/
+		while(!(pI2CHandle->pI2Cx->I2C_CR1 & (1<<6)));
+		// read data to buffer
+		*prx_buff |= pI2CHandle->pI2Cx->I2C_DR;
+	}
+	else if(length > 1){
+		// clear the ADDR bit
+		Read_clear_ADDR(pI2CHandle->pI2Cx);  // start of ddata reception
+		// for loop from len to 0 in decrement
+		for(volatile int i = length ; i > 0 ; i--){
+			// wait until RXNE is set
+			while(!(pI2CHandle->pI2Cx->I2C_CR1 & (1<<6)));
+			if(length ==2){
+				// clear the Ack bit
+				I2C_Manage_ACK(pI2CHandle->pI2Cx,DISABLE);
+				// initiate the stop condition
+				pI2CHandle->pI2Cx->I2C_CR1 |= (1<< 9);
+			}
+			// copy the data from the buffer
+			*prx_buff |= pI2CHandle->pI2Cx->I2C_DR;
+			// increment the buffer
+			prx_buff++;
+			return;
+		}
+		// re-enable the ACK if only the ACK is enabled in the HAndle!
+		if(pI2CHandle->I2C_Config.I2C_ACKControl == I2C_ACK_ENABLE){
+			I2C_Manage_ACK(pI2CHandle->pI2Cx,ENABLE);
+		}
+	}
+
+}
+/*
+ * Required for Master receive API
+ */
+void I2C_Manage_ACK(I2C_RegDef_t *pI2C, uint8_t S_O_R){
+
+	if(S_O_R == ENABLE){
+		// enable the ack
+		pI2C->I2C_SR1 |= (1<<10);
+	}
+	else if(S_O_R == DISABLE){
+		// disable
+		pI2C->I2C_SR1 &= ~(1<<10);
+	}
+}
+

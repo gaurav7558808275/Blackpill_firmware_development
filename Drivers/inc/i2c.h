@@ -70,10 +70,17 @@ void I2C_Clock_DE(I2C_RegDef_t *pI2Cx);	// I2C clock deinit
 void I2C_Init(I2C_Handle_t *I2C_Handle);
 void I2C_Deinit(I2C_Handle_t *I2C_Handle);
 /*
- *
+ *	MAster send receive API
  */
 void I2C_MasterSend(I2C_Handle_t *pI2CHandle, uint8_t *ptx_buff , uint32_t length,uint8_t Sadd);
-void I2C_Receive(I2C_RegDef_t *pI2Cx, uint8_t *rx_buff , uint32_t length);
+/*
+ * Master receive Mode API
+ */
+void I2C_MasterReceive(I2C_Handle_t *pI2CHandle, uint8_t *prx_buff , uint32_t length,uint8_t Sadd);
+/*
+ * // Manage the NACk bit in master recieve mode
+ */
+void I2C_Manage_ACK(I2C_RegDef_t *pI2C, uint8_t S_O_R);
 /*
  *
  */
