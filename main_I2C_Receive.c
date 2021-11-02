@@ -93,14 +93,14 @@ int main(void)
 			ms_delay(200); // 200ms delay
 			command = 0x51;
 			// Data write 1 byte to send command
-			I2C_MasterSend(&I2C_Handle,&command,1, SLAVE_ADDR);
+			I2C_MasterSend(&I2C_Handle,&command,1, SLAVE_ADDR,I2C_ENABLE_SR);
 			// API to receive master
-			I2C_MasterReceive(&I2C_Handle,&length,1,SLAVE_ADDR);
+			I2C_MasterReceive(&I2C_Handle,&length,1,SLAVE_ADDR,I2C_ENABLE_SR);
 			// Send the command code 0x52
 			command = 0x52;
-			I2C_MasterSend(&I2C_Handle, &command,1,SLAVE_ADDR);
+			I2C_MasterSend(&I2C_Handle, &command,1,SLAVE_ADDR,I2C_ENABLE_SR);
 			// receive the data
-			I2C_MasterReceive(&I2C_Handle,(uint8_t*)buff,length,SLAVE_ADDR);
+			I2C_MasterReceive(&I2C_Handle,(uint8_t*)buff,length,SLAVE_ADDR,I2C_DISABLE_SR);
 			buff[length +1] = '\0'; // used for semihosting
 			printf("Data:  %s",(char *)buff); // semihosting print
 		}

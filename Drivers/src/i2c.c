@@ -18,8 +18,8 @@ void I2C_Clock_DE(I2C_RegDef_t *pI2Cx);
 void I2C_Init(I2C_Handle_t *I2C_Handle);
 void I2C_Deinit(I2C_Handle_t *I2C_Handle);
 
-void I2C_MasterSend(I2C_Handle_t *pI2CHandle, uint8_t *ptx_buff , uint32_t length,uint8_t Sadd); /*Used*/
-void I2C_MasterReceive(I2C_Handle_t *pI2CHandle, uint8_t *prx_buff , uint32_t length,uint8_t Sadd);/*Used*/
+void I2C_MasterSend(I2C_Handle_t *pI2CHandle, uint8_t *ptx_buff , uint32_t length,uint8_t Sadd,uint8_t SR); /*Used*/
+void I2C_MasterReceive(I2C_Handle_t *pI2CHandle, uint8_t *prx_buff , uint32_t length,uint8_t Sadd,uint8_t SR);/*Used*/
 
 uint8_t I2C_Send_IT(I2C_Handle_t * pI2C_Handle_t, uint8_t *tx_buff , uint32_t length);
 uint8_t I2C_Receive_IT(I2C_Handle_t *pI2C_Handle_t, uint8_t *rx_buff , uint32_t length);
@@ -207,7 +207,7 @@ void I2C_Init(I2C_Handle_t *I2C_Handle){
  *	LOCAL FUNCTION FOR MASTER SEND and Main Master Send available here!
  *
  */
-void I2C_MasterSend(I2C_Handle_t *pI2CHandle, uint8_t *ptx_buff , uint32_t length,uint8_t Saddr){
+void I2C_MasterSend(I2C_Handle_t *pI2CHandle, uint8_t *ptx_buff , uint32_t length,uint8_t Saddr,uint8_t SR){
 
 	// 1. initiate the start condition
 	I2C_GenerateStartCondition(pI2CHandle->pI2Cx);
@@ -229,9 +229,14 @@ void I2C_MasterSend(I2C_Handle_t *pI2CHandle, uint8_t *ptx_buff , uint32_t lengt
 	// when the length is empty generate the end set.
 	while(!(pI2CHandle->pI2Cx->I2C_SR1 &(1<<7)));   // TXE bit check
 	while(!(pI2CHandle->pI2Cx->I2C_SR1 & (1<<2)));  // BTF bit check
-	// Generate the stop condition
-	pI2CHandle->pI2Cx->I2C_CR1 |= (1<< 9); // writing into the bit[9] in CR1b
+
+	if(SR==I2C_DISABLE_SR){  // Generate the stop condition
+		pI2CHandle->pI2Cx->I2C_CR1 |= (1<< 9);// writing into the bit[9] in CR1b
+	}
 }
+/*
+ *  Sub function declaration from here
+ */
 static void I2C_GenerateStartCondition(I2C_RegDef_t *pI2C_Handle){
 	pI2C_Handle->I2C_CR1 |= (1<<8);  //BIT[8] = START BIT CHECK REFERENCE MANUAL
 }
@@ -260,7 +265,7 @@ static void Read_clear_ADDR(I2C_RegDef_t *pI2C_Handle){
  * # send the address of the slave with R/W bit in this case R(1) (total 8 bit)
  * # Wait until the address phase is completed by checking the ADDR register
  */
-void I2C_MasterReceive(I2C_Handle_t *pI2CHandle, uint8_t *prx_buff , uint32_t length, uint8_t Sadd){
+void I2C_MasterReceive(I2C_Handle_t *pI2CHandle, uint8_t *prx_buff , uint32_t length, uint8_t Sadd,uint8_t SR){
 	// Generating the start condition with the sub functions created
 	I2C_GenerateStartCondition(pI2CHandle->pI2Cx);
 	// checking whether the start condition is initiated or not
@@ -273,18 +278,19 @@ void I2C_MasterReceive(I2C_Handle_t *pI2CHandle, uint8_t *prx_buff , uint32_t le
 	Read_clear_ADDR(pI2CHandle->pI2Cx);
 	// Receive the data has two modes 1) 1byte mode from slave 2) multiple byes from slave
 	// condition if 1 byte is asked from slave
-	if(length < 1){
+	if(length == 1){
 
 		// disable the ACK
 		I2C_Manage_ACK(pI2CHandle->pI2Cx,DISABLE);
-		// Generate the stop condition
-		pI2CHandle->pI2Cx->I2C_CR1 |= (1<< 9);
 		// clear the ADDr bit by calling this static API
 		Read_clear_ADDR(pI2CHandle->pI2Cx);
 		// wait until RXNE becomes 1 in SR1 register (Data register not empty)
 		 /* 0: Data register empty
 			1: Data register not empty*/
 		while(!(pI2CHandle->pI2Cx->I2C_CR1 & (1<<6)));
+		// Generate the stop condition
+		if(SR==I2C_DISABLE_SR)
+			pI2CHandle->pI2Cx->I2C_CR1 |= (1<< 9);
 		// read data to buffer
 		*prx_buff |= pI2CHandle->pI2Cx->I2C_DR;
 	}
@@ -299,7 +305,8 @@ void I2C_MasterReceive(I2C_Handle_t *pI2CHandle, uint8_t *prx_buff , uint32_t le
 				// clear the Ack bit
 				I2C_Manage_ACK(pI2CHandle->pI2Cx,DISABLE);
 				// initiate the stop condition
-				pI2CHandle->pI2Cx->I2C_CR1 |= (1<< 9);
+				if(SR==I2C_DISABLE_SR)
+					pI2CHandle->pI2Cx->I2C_CR1 |= (1<< 9);
 			}
 			// copy the data from the buffer
 			*prx_buff |= pI2CHandle->pI2Cx->I2C_DR;
@@ -311,6 +318,7 @@ void I2C_MasterReceive(I2C_Handle_t *pI2CHandle, uint8_t *prx_buff , uint32_t le
 		if(pI2CHandle->I2C_Config.I2C_ACKControl == I2C_ACK_ENABLE){
 			I2C_Manage_ACK(pI2CHandle->pI2Cx,ENABLE);
 		}
+
 	}
 
 }
@@ -320,7 +328,7 @@ void I2C_MasterReceive(I2C_Handle_t *pI2CHandle, uint8_t *prx_buff , uint32_t le
 void I2C_Manage_ACK(I2C_RegDef_t *pI2C, uint8_t S_O_R){
 
 	if(S_O_R == ENABLE){
-		// enable the ack
+		// enable the ACK
 		pI2C->I2C_SR1 |= (1<<10);
 	}
 	else if(S_O_R == DISABLE){

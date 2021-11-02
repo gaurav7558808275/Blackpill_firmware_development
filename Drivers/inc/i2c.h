@@ -37,12 +37,15 @@
  */
 #define I2C_FMDUTY_2		0
 #define I2C_FMDUTY16_9		1
-
+/*
+ * REPEATED START MACROS
+ */
+#define I2C_DISABLE_SR 0
+#define I2C_ENABLE_SR    1
 /*
  * API PROTOTYPES.
  *
  */
-
 typedef struct
 {
 	uint32_t	I2C_SCL_Speed;
@@ -72,11 +75,11 @@ void I2C_Deinit(I2C_Handle_t *I2C_Handle);
 /*
  *	MAster send receive API
  */
-void I2C_MasterSend(I2C_Handle_t *pI2CHandle, uint8_t *ptx_buff , uint32_t length,uint8_t Sadd);
+void I2C_MasterSend(I2C_Handle_t *pI2CHandle, uint8_t *ptx_buff , uint32_t length,uint8_t Sadd,uint8_t SR);
 /*
  * Master receive Mode API
  */
-void I2C_MasterReceive(I2C_Handle_t *pI2CHandle, uint8_t *prx_buff , uint32_t length,uint8_t Sadd);
+void I2C_MasterReceive(I2C_Handle_t *pI2CHandle, uint8_t *prx_buff , uint32_t length,uint8_t Sadd,uint8_t SR);
 /*
  * // Manage the NACk bit in master recieve mode
  */
