@@ -344,12 +344,61 @@ void I2C_Manage_ACK(I2C_RegDef_t *pI2C, uint8_t S_O_R){
  */
 uint8_t I2C_MasterSend_IT(I2C_Handle_t *pI2CHandle, uint8_t *ptx_buff , uint32_t length,uint8_t Sadd,uint8_t SR){
 
+	uint8_t busystate = pI2CHandle->txrxstate;
+	if((busystate != I2C_BUSY_IN_TX)&&(busystate != I2C_BUSY_IN_RX)){
+		pI2CHandle->ptxbuffer = ptx_buff;
+		pI2CHandle->txlen = length;
+		pI2CHandle->txrxstate = I2C_BUSY_IN_TX;
+		pI2CHandle->devaddr = Sadd;
+		pI2CHandle->sr = SR;
+
+		// initiate the start condition
+		I2C_GenerateStartCondition(pI2CHandle->pI2Cx);
+		// Set the ITBUFEN bitin CR2 buffer interrupt signal
+		pI2CHandle->pI2Cx->I2C_CR2 |= (1<<10);
+		// Set the ITEVTEN bit in CR2 register
+		pI2CHandle->pI2Cx->I2C_CR2 |= (1<<9);
+		// Set the ITERREN: bit in CR2 register
+		pI2CHandle->pI2Cx->I2C_CR2 |= (1<<8);
+	}
+
+	return busystate;
+}
+/*
+ * Masterreceive API using interrupt
+ *
+ */
+uint8_t I2C_MasterReceive_IT(I2C_Handle_t *pI2CHandle, uint8_t *prx_buff , uint32_t length,uint8_t Sadd,uint8_t SR){
+	uint8_t busystate = pI2CHandle->txrxstate;
+	if((busystate != I2C_BUSY_IN_TX)&&(busystate != I2C_BUSY_IN_RX)){
+		pI2CHandle->prxbuffer = prx_buff;
+		pI2CHandle->rxlen = length;
+		pI2CHandle->txrxstate = I2C_BUSY_IN_RX;
+		pI2CHandle->devaddr = Sadd;
+		pI2CHandle->sr = SR;
+
+		// initiate the start condition
+		I2C_GenerateStartCondition(pI2CHandle->pI2Cx);
+		// Set the ITBUFEN bitin CR2 buffer interrupt signal
+		pI2CHandle->pI2Cx->I2C_CR2 |= (1<<10);
+		// Set the ITEVTEN bit in CR2 register
+		pI2CHandle->pI2Cx->I2C_CR2 |= (1<<9);
+		// Set the ITERREN: bit in CR2 register
+		pI2CHandle->pI2Cx->I2C_CR2 |= (1<<8);
+	}
+
+	return busystate;
 
 }
-uint8_t I2C_MasterReceive_IT(I2C_Handle_t *pI2CHandle, uint8_t *ptx_buff , uint32_t length,uint8_t Sadd,uint8_t SR){
-
+/*
+ * IRQ handling function for interrupt based API
+ */
+void I2C_IRQ_Handling(uint8_t IRQ_Number){
 
 }
+/*
+ * I2C IRQ config API
+ */
 void I2C_IRQ_IT_config(uint8_t IRQ_Number, uint8_t S_O_R){ // SET OR RESET /* used*/
 	if (S_O_R == ENABLE)
 		{
@@ -383,6 +432,10 @@ void I2C_IRQ_IT_config(uint8_t IRQ_Number, uint8_t S_O_R){ // SET OR RESET /* us
 		}
 
 }
+/*
+ *  Priority setup for I2C
+ */
+
 void I2C_Priority_Config(uint8_t IRQ_number , uint32_t priority){
 
 	uint8_t iprx = IRQ_number/4;   	// TO FIND THE WHICH REGISTER OF PRI
@@ -390,6 +443,4 @@ void I2C_Priority_Config(uint8_t IRQ_number , uint32_t priority){
 	uint8_t shift_amount = (8 * iprx_section) + (8 - NO_OF_BIT_IMPLEMENTED);	// IN THE IPR LAST 4 BITS ARE INGNORED
 	*(NVIC_IPR0 + iprx) |= (priority << (shift_amount)); // SETS ALL THE 8 BIT REGISTER TO THE REQUIRED VALUE(PRIORITY)
 }
-void I2C_IRQ_Handling(uint8_t IRQ_Number){
 
-}
