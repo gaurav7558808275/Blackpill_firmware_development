@@ -10,6 +10,7 @@
 #include "i2c.h"
 #include "string.h"
 #include "timer.h"
+#include "stdio.h"
 
 I2C_Handle_t I2C_Handle;  // I2C handle for configuration
 GPIOx_Handle I2C_gpio;	  // gpio pin config for I2C
@@ -84,6 +85,7 @@ int main(void)
 	I2C_Gpio_Pins();
 	I2C_Init_main();
 	I2C_Clock_EN(I2C_Handle.pI2Cx);
+	I2C_Manage_ACK(I2C_Handle.pI2Cx,ENABLE); // a complication had happened regarding the ACK bit intialization
 	uint8_t command = 0;
 	uint8_t length =0;
 	while(1){
@@ -99,6 +101,8 @@ int main(void)
 			I2C_MasterSend(&I2C_Handle, &command,1,SLAVE_ADDR);
 			// receive the data
 			I2C_MasterReceive(&I2C_Handle,(uint8_t*)buff,length,SLAVE_ADDR);
+			buff[length +1] = '\0'; // used for semihosting
+			printf("Data:  %s",(char *)buff); // semihosting print
 		}
 	}
 }
