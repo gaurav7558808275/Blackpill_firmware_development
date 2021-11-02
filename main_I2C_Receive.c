@@ -14,7 +14,7 @@
 I2C_Handle_t I2C_Handle;  // I2C handle for configuration
 GPIOx_Handle I2C_gpio;	  // gpio pin config for I2C
 GPIOx_Handle button;// Button initilaised.
-uint8_t Somedata[] = "Some data that is sent\n";
+uint32_t buff[32];
 /*
  * PB6 - SCL
  * PB7 - SDA
@@ -84,10 +84,21 @@ int main(void)
 	I2C_Gpio_Pins();
 	I2C_Init_main();
 	I2C_Clock_EN(I2C_Handle.pI2Cx);
+	uint8_t command = 0;
+	uint8_t length =0;
 	while(1){
 		if(GPIO_Read_Pin(GPIOB,GPIO_PIN_13) == 1){
 			ms_delay(200); // 200ms delay
-			I2C_MasterSend(&I2C_Handle,Somedata,strlen((char *)Somedata),SLAVE_ADDR);
+			command = 0x51;
+			// Data write 1 byte to send command
+			I2C_MasterSend(&I2C_Handle,&command,1, SLAVE_ADDR);
+			// API to receive master
+			I2C_MasterReceive(&I2C_Handle,&length,1,SLAVE_ADDR);
+			// Send the command code 0x52
+			command = 0x52;
+			I2C_MasterSend(&I2C_Handle, &command,1,SLAVE_ADDR);
+			// receive the data
+			I2C_MasterReceive(&I2C_Handle,(uint8_t*)buff,length,SLAVE_ADDR);
 		}
 	}
 }
