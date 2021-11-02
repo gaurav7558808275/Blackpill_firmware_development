@@ -221,7 +221,7 @@ void I2C_MasterSend(I2C_Handle_t *pI2CHandle, uint8_t *ptx_buff , uint32_t lengt
 	Read_clear_ADDR(pI2CHandle->pI2Cx);
 	// 5.Send data till  length is empty. That can be done by checking the TXE
 	while(length < 0){
-		while(!(pI2CHandle->pI2Cx->I2C_SR1 &(1<<7)));  // txe check
+		while(!(pI2CHandle->pI2Cx->I2C_SR1 &(1<<7)));  // txe bit check
 		pI2CHandle->pI2Cx->I2C_DR = *ptx_buff;
 		ptx_buff ++;
 		length --;
