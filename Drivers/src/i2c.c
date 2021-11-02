@@ -21,11 +21,13 @@ void I2C_Deinit(I2C_Handle_t *I2C_Handle);
 void I2C_MasterSend(I2C_Handle_t *pI2CHandle, uint8_t *ptx_buff , uint32_t length,uint8_t Sadd,uint8_t SR); /*Used*/
 void I2C_MasterReceive(I2C_Handle_t *pI2CHandle, uint8_t *prx_buff , uint32_t length,uint8_t Sadd,uint8_t SR);/*Used*/
 
-uint8_t I2C_Send_IT(I2C_Handle_t * pI2C_Handle_t, uint8_t *tx_buff , uint32_t length);
-uint8_t I2C_Receive_IT(I2C_Handle_t *pI2C_Handle_t, uint8_t *rx_buff , uint32_t length);
+uint8_t I2C_MasterSend_IT(I2C_Handle_t *pI2CHandle, uint8_t *ptx_buff , uint32_t length,uint8_t Sadd,uint8_t SR); /*used*/
+uint8_t I2C_MasterReceive_IT(I2C_Handle_t *pI2CHandle, uint8_t *ptx_buff , uint32_t length,uint8_t Sadd,uint8_t SR);/*used*/
 
-void I2C_IRQ_IT_config(uint8_t IRQ_Number, uint8_t S_O_R);  // SET OR RESET
-void I2C_IRQ_Handling(I2C_Handle_t *pI2C_Handle_t );
+void I2C_IRQ_IT_config(uint8_t IRQ_Number, uint8_t S_O_R);  // SET OR RESET /* used*/
+void I2C_Priority_Config(uint8_t IRQ_number , uint32_t priority); /* used*/
+void I2C_IRQ_Handling(uint8_t IRQ_Number);
+
 void I2C_Priority_Config(uint8_t IRQ_number , uint32_t priority);
 
 void I2C_Peripheral_Control(I2C_RegDef_t *I2C_Handle, uint8_t S_O_R);
@@ -336,4 +338,58 @@ void I2C_Manage_ACK(I2C_RegDef_t *pI2C, uint8_t S_O_R){
 		pI2C->I2C_SR1 &= ~(1<<10);
 	}
 }
+/*
+ * Interrupt based API in I2C
+ *
+ */
+uint8_t I2C_MasterSend_IT(I2C_Handle_t *pI2CHandle, uint8_t *ptx_buff , uint32_t length,uint8_t Sadd,uint8_t SR){
 
+
+}
+uint8_t I2C_MasterReceive_IT(I2C_Handle_t *pI2CHandle, uint8_t *ptx_buff , uint32_t length,uint8_t Sadd,uint8_t SR){
+
+
+}
+void I2C_IRQ_IT_config(uint8_t IRQ_Number, uint8_t S_O_R){ // SET OR RESET /* used*/
+	if (S_O_R == ENABLE)
+		{
+			if(IRQ_Number <= 31)
+			{
+			*NVIC_ISER0 |= (1 << IRQ_Number);
+			}
+			else if(IRQ_Number >31 && IRQ_Number <64) // 32-63
+			{
+			*NVIC_ISER1 |= (1 << (IRQ_Number % 32));
+			}
+			else if(IRQ_Number >64 && IRQ_Number <96)
+			{
+			*NVIC_ISER2 |= (1 << (IRQ_Number % 64));
+			}
+		}
+		else
+		{
+			if(IRQ_Number <= 31)
+			{
+			*NVIC_ICER0 &= ~(1 << IRQ_Number);
+			}
+			else if(IRQ_Number >31 && IRQ_Number <64) // 32-63
+			{
+			*NVIC_ICER1 &= ~(1 << (IRQ_Number % 32));
+			}
+			else if(IRQ_Number >64 && IRQ_Number <96)
+			{
+			*NVIC_ICER2 &= ~(1 << (IRQ_Number % 64));
+			}
+		}
+
+}
+void I2C_Priority_Config(uint8_t IRQ_number , uint32_t priority){
+
+	uint8_t iprx = IRQ_number/4;   	// TO FIND THE WHICH REGISTER OF PRI
+	uint8_t iprx_section = IRQ_number % 4;		// THIS IS USED TO FIND THE SECTION THAT THE DTAA WILL BE UPDATED
+	uint8_t shift_amount = (8 * iprx_section) + (8 - NO_OF_BIT_IMPLEMENTED);	// IN THE IPR LAST 4 BITS ARE INGNORED
+	*(NVIC_IPR0 + iprx) |= (priority << (shift_amount)); // SETS ALL THE 8 BIT REGISTER TO THE REQUIRED VALUE(PRIORITY)
+}
+void I2C_IRQ_Handling(uint8_t IRQ_Number){
+
+}

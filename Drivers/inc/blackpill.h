@@ -360,6 +360,18 @@ typedef struct
 
 }I2C_RegDef_t;
 
+/*
+ *  FROM VECTOR TABLE REFERENCE MANUAL
+ *
+ */
+#define I2C1_EV		38
+#define I2C1_ER		39
+#define I2C2_EV		40
+#define I2C2_ER		41
+#define I2C3_EV		72
+#define I2C3_ER		73
+
+
 /*			Structure pointers for different I2C's			*/
 
 #define I2C1			((I2C_RegDef_t *)I2C1_BASE_ADDR)

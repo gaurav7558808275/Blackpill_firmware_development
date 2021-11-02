@@ -58,12 +58,24 @@ typedef struct
 typedef struct
 {
 	I2C_RegDef_t	*pI2Cx;
-	I2C_Config_t	I2C_Config;
-
+	I2C_Config_t	I2C_Config; /* <>*/
+	uint8_t 		*ptxbuffer;
+	uint8_t			*prxbuffer;
+	uint32_t		txlen;
+	uint32_t 		rxlen;
+	uint8_t			txrxstate;
+	uint8_t 		devaddr;
+	uint8_t			rx_size;
+	uint8_t 		sr;  // for repeated start bit
 }I2C_Handle_t;
-
 /*
- *
+ *  application states
+ */
+#define I2C_READY  		1
+#define I2C_BUSY_IN_TX	2
+#define I2C_BUSY_IN_RX	3
+/*
+ * clock init APIs
  */
 void I2C_Clock_EN(I2C_RegDef_t *pI2Cx);	// I2C Clock Initialize
 void I2C_Clock_DE(I2C_RegDef_t *pI2Cx);	// I2C clock deinit
@@ -85,15 +97,17 @@ void I2C_MasterReceive(I2C_Handle_t *pI2CHandle, uint8_t *prx_buff , uint32_t le
  */
 void I2C_Manage_ACK(I2C_RegDef_t *pI2C, uint8_t S_O_R);
 /*
- *
+ * INterrupt based API for send and receive
  */
-uint8_t I2C_Send_IT(I2C_Handle_t * pI2C_Handle_t, uint8_t *tx_buff , uint32_t length);
-uint8_t I2C_Receive_IT(I2C_Handle_t *pI2C_Handle_t, uint8_t *rx_buff , uint32_t length);
+uint8_t I2C_MasterSend_IT(I2C_Handle_t *pI2CHandle, uint8_t *ptx_buff , uint32_t length,uint8_t Sadd,uint8_t SR);
+uint8_t I2C_MasterReceive_IT(I2C_Handle_t *pI2CHandle, uint8_t *ptx_buff , uint32_t length,uint8_t Sadd,uint8_t SR);
 /*
  *
  */
 void I2C_IRQ_IT_config(uint8_t IRQ_Number, uint8_t S_O_R);  // SET OR RESET
 void I2C_Priority_Config(uint8_t IRQ_number , uint32_t priority);
+void I2C_IRQ_Handling(uint8_t IRQ_Number);
+
 /*
  *
  */
