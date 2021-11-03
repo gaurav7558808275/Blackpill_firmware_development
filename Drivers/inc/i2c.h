@@ -40,7 +40,7 @@
 /*
  * REPEATED START MACROS
  */
-#define I2C_DISABLE_SR 0
+#define I2C_DISABLE_SR 	 0
 #define I2C_ENABLE_SR    1
 /*
  * API PROTOTYPES.
