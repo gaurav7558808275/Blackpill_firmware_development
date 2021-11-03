@@ -106,8 +106,8 @@ uint8_t I2C_MasterReceive_IT(I2C_Handle_t *pI2CHandle, uint8_t *ptx_buff , uint3
  */
 void I2C_IRQ_IT_config(uint8_t IRQ_Number, uint8_t S_O_R);  // SET OR RESET
 void I2C_Priority_Config(uint8_t IRQ_number , uint32_t priority);
-void I2C_IRQ_Handling(uint8_t IRQ_Number);
-
+void I2CEV_IRQ_Handling( I2C_Handle_t *pI2CHandle); /*used*/
+void I2CER_IRQ_Handling(I2C_Handle_t *pI2CHandle); /*used*/
 /*
  *
  */

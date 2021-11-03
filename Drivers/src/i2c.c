@@ -26,7 +26,8 @@ uint8_t I2C_MasterReceive_IT(I2C_Handle_t *pI2CHandle, uint8_t *ptx_buff , uint3
 
 void I2C_IRQ_IT_config(uint8_t IRQ_Number, uint8_t S_O_R);  // SET OR RESET /* used*/
 void I2C_Priority_Config(uint8_t IRQ_number , uint32_t priority); /* used*/
-void I2C_IRQ_Handling(uint8_t IRQ_Number);
+void I2CEV_IRQ_Handling(I2C_Handle_t *pI2CHandle); /* used */
+void I2CER_IRQ_Handling(I2C_Handle_t *pI2CHandle); /*used */
 
 void I2C_Priority_Config(uint8_t IRQ_number , uint32_t priority);
 
@@ -442,5 +443,51 @@ void I2C_Priority_Config(uint8_t IRQ_number , uint32_t priority){
 	uint8_t iprx_section = IRQ_number % 4;		// THIS IS USED TO FIND THE SECTION THAT THE DTAA WILL BE UPDATED
 	uint8_t shift_amount = (8 * iprx_section) + (8 - NO_OF_BIT_IMPLEMENTED);	// IN THE IPR LAST 4 BITS ARE INGNORED
 	*(NVIC_IPR0 + iprx) |= (priority << (shift_amount)); // SETS ALL THE 8 BIT REGISTER TO THE REQUIRED VALUE(PRIORITY)
+}
+
+void I2CEV_IRQHandling(I2C_Handle_t *pI2CHandle){
+	// check the event bit is set or not
+	// bit checks are TEVFEN,ITEVFEN and ITBUFEN,ITERREN for more data check the reference manual pg 490
+	uint32_t temp1 = pI2CHandle->pI2Cx->I2C_CR2 & (1<<10);// bit check  ITBUFEN
+	uint32_t temp2 = pI2CHandle->pI2Cx->I2C_CR2 & (1<<9);	// bit check ITEVTEN
+	uint32_t temp3 = pI2CHandle->pI2Cx->I2C_SR1 & (1<<0); // bit check SB
+	// check SB
+	if(temp2 && temp3){
+		// ready handle for  SB
+	}
+	temp3 = pI2CHandle->pI2Cx->I2C_SR1 & (1<<1); // check addr bit
+	//check ADDR
+	if(temp2 && temp3){
+			// ready handle for  ADDR
+		}
+	/*// check ADD10
+	temp3 = pI2CHandle->pI2Cx->I2C_SR1 & (1<<3);
+	if(temp2 & temp3){
+		// handle for ADD10 bit set
+	}*/ // not used as we don't use 10 bit addressing
+	// check bit STOPF
+	temp3 = pI2CHandle->pI2Cx->I2C_SR1 & (1<<4);
+	if(temp2 && temp3){
+			// handle for STOPF bit set
+		}
+	// check for btf
+	temp3 = pI2CHandle->pI2Cx->I2C_SR1 & (1<<2);
+	if(temp2 && temp3){
+		// handle for btf
+	}
+	// Now check the RxNE and TxE
+	temp3= pI2CHandle->pI2Cx->I2C_SR1 & (1<<6); // Check the RxNE
+	if((temp1 && temp2 && temp3)){
+		 // handle for RxNe set
+	}
+	temp3 = pI2CHandle->pI2Cx->I2C_SR1 & (1<<7);
+	// chec for Txe
+	if((temp1 && temp2 && temp3)){
+			 // handle for Txe set
+		}
+
+}
+void I2CER_IRQhandling(I2C_Handle_t *pI2CHandle){
+
 }
 
