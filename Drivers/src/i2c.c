@@ -464,9 +464,9 @@ void I2CEV_IRQHandling(I2C_Handle_t *pI2CHandle){
 		// ready handle for SB. qont work in slave mode as in slave mode it is not neccessary
 		// In this block we will execute the address phase
 		if(pI2CHandle->txrxstate == I2C_BUSY_IN_TX){
-			ExecuteAddress_Mastersend(*pI2CHandle,pI2CHandle->devaddr);
+			ExecuteAddress_Mastersend(pI2CHandle->pI2Cx,pI2CHandle->devaddr);
 		}else if(pI2CHandle->txrxstate == I2C_BUSY_IN_RX){
-			ExecuteAddress_MasterReceive(pI2CHandle, pI2CHandle->devaddr);
+			ExecuteAddress_MasterReceive(pI2CHandle->pI2Cx, pI2CHandle->devaddr);
 		}
 
 	}
@@ -474,12 +474,14 @@ void I2CEV_IRQHandling(I2C_Handle_t *pI2CHandle){
 	//check ADDR
 	if(temp2 && temp3){
 			// ready handle for  ADDR
+		Read_clear_ADDR(pI2CHandle->pI2Cx);
 		}
 	/*// check ADD10
 	temp3 = pI2CHandle->pI2Cx->I2C_SR1 & (1<<3);
 	if(temp2 & temp3){
 		// handle for ADD10 bit set
 	}*/ // not used as we don't use 10 bit addressing
+
 	// check bit STOPF
 	temp3 = pI2CHandle->pI2Cx->I2C_SR1 & (1<<4);
 	if(temp2 && temp3){
@@ -489,6 +491,19 @@ void I2CEV_IRQHandling(I2C_Handle_t *pI2CHandle){
 	temp3 = pI2CHandle->pI2Cx->I2C_SR1 & (1<<2);
 	if(temp2 && temp3){
 		// handle for btf
+		// btf and TxE during transmission  // btf and rxne during reception
+		if(pI2CHandle->txrxstate == I2C_BUSY_IN_TX ){
+			if(pI2CHandle->pI2Cx->I2C_SR1 & (1<<2)){
+				// BTF and TXe is set
+				// close transmission only if repeated start is disabled or not activated
+				if(pI2CHandle->sr == I2C_DISABLE_SR)
+					pI2CHandle->pI2Cx->I2C_CR1 |= (1<< 9);
+				// reset all the I2C handle definitions
+				I2C_CloseSendData();
+				//notify the application transmission complete
+				I2CEventCallBack(pi2CHandle ,I2C_EV_TX_CMPT);
+			}
+		}
 	}
 	// Now check the RxNE and TxE
 	temp3= pI2CHandle->pI2Cx->I2C_SR1 & (1<<6); // Check the RxNE
