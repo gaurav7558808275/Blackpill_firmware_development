@@ -47,12 +47,24 @@ static void ExecuteAddress_Mastersend(I2C_RegDef_t * pI2CHandle,uint8_t Saddr);
 static void ExecuteAddress_MasterReceive(I2C_RegDef_t *pI2CHandle,uint8_t Saddr);
 static void Read_clear_ADDR(I2C_RegDef_t *pI2CHandle);
 void I2C_Manage_ACK(I2C_RegDef_t *pI2C, uint8_t S_O_R);
+void I2C_Clear_ADDRIT(I2C_Handle_t *pI2CHandle);
+
+/*
+ *  The handle functions are divided into sub function
+ *
+ */
+
+void I2C_SB_Handle(I2C_Handle_t *pI2CHandle);
+void I2C_BTF_Handle(I2C_Handle_t *pI2CHandle);
+void I2C_RXNE_Handle(I2C_Handle_t *pI2CHandle);
+void I2C_TXE_Handle(I2C_Handle_t *pI2CHandle);
+
 /*
  *
  * Clock enable and disable API's
  *
  */
-void I2C_Clock_EN(I2C_RegDef_t *pI2Cx )	// I2C Clock Initialize
+void I2C_Clock_EN(I2C_RegDef_t *pI2Cx)	// I2C Clock Initialize
 {
 	if(pI2Cx == I2C1)
 	{
@@ -339,6 +351,34 @@ void I2C_Manage_ACK(I2C_RegDef_t *pI2C, uint8_t S_O_R){
 		pI2C->I2C_SR1 &= ~(1<<10);
 	}
 }
+/**
+ *
+ *  creating another MANAGE ACK function for interrupt based design
+ *
+ */
+void I2C_Clear_ADDRIT(I2C_Handle_t *pI2CHandle){
+	uint32_t Dummy = 0;
+	if(pI2CHandle->pI2Cx->I2C_SR2 & (1<<0)){
+		//master mode
+		if(pI2CHandle->txrxstate == I2C_BUSY_IN_RX){
+			if(pI2CHandle->rx_size <1){
+				pI2CHandle->pI2Cx->I2C_SR1 &= ~(1<<10);
+				/* clear ADDR steps*/
+				Dummy |= pI2CHandle->pI2Cx->I2C_SR1;
+				Dummy |= pI2CHandle->pI2Cx->I2C_SR2;
+				(void)Dummy;
+			}
+		}
+	}else{
+		// slave mode
+		/* clear ADDR steps*/
+		Dummy |= pI2CHandle->pI2Cx->I2C_SR1;
+		Dummy |= pI2CHandle->pI2Cx->I2C_SR2;
+		(void)Dummy;
+	}
+
+}
+
 /*
  * Interrupt based API in I2C
  *
@@ -459,18 +499,20 @@ void I2CEV_IRQHandling(I2C_Handle_t *pI2CHandle){
 	uint32_t temp1 = pI2CHandle->pI2Cx->I2C_CR2 & (1<<10);// bit check  ITBUFEN
 	uint32_t temp2 = pI2CHandle->pI2Cx->I2C_CR2 & (1<<9);	// bit check ITEVTEN
 	uint32_t temp3 = pI2CHandle->pI2Cx->I2C_SR1 & (1<<0); // bit check SB
+	/*
+	 *
+	 *
+	 */
 	// check SB
 	if(temp2 && temp3){
-		// ready handle for SB. qont work in slave mode as in slave mode it is not neccessary
-		// In this block we will execute the address phase
-		if(pI2CHandle->txrxstate == I2C_BUSY_IN_TX){
-			ExecuteAddress_Mastersend(pI2CHandle->pI2Cx,pI2CHandle->devaddr);
-		}else if(pI2CHandle->txrxstate == I2C_BUSY_IN_RX){
-			ExecuteAddress_MasterReceive(pI2CHandle->pI2Cx, pI2CHandle->devaddr);
-		}
-
+		I2C_SB_Handle(pI2CHandle);
 	}
+
 	temp3 = pI2CHandle->pI2Cx->I2C_SR1 & (1<<1); // check addr bit
+	/*
+	 *
+	 *
+	 */
 	//check ADDR
 	if(temp2 && temp3){
 			// ready handle for  ADDR
@@ -481,42 +523,134 @@ void I2CEV_IRQHandling(I2C_Handle_t *pI2CHandle){
 	if(temp2 & temp3){
 		// handle for ADD10 bit set
 	}*/ // not used as we don't use 10 bit addressing
-
+	/*
+	 *
+	 *
+	 */
 	// check bit STOPF
 	temp3 = pI2CHandle->pI2Cx->I2C_SR1 & (1<<4);
 	if(temp2 && temp3){
-			// handle for STOPF bit set
+			// handle for STOPF bit set // only executed ini the slave mode
+		pI2CHandle->pI2Cx->I2C_CR1 |= 0x0000;
+		I2CEventCallBack(pI2CHandle ,I2C_EV_STOP);
 		}
+	/*
+	 *
+	 *
+	 */
 	// check for btf
 	temp3 = pI2CHandle->pI2Cx->I2C_SR1 & (1<<2);
 	if(temp2 && temp3){
-		// handle for btf
-		// btf and TxE during transmission  // btf and rxne during reception
-		if(pI2CHandle->txrxstate == I2C_BUSY_IN_TX ){
-			if(pI2CHandle->pI2Cx->I2C_SR1 & (1<<2)){
-				// BTF and TXe is set
-				// close transmission only if repeated start is disabled or not activated
-				if(pI2CHandle->sr == I2C_DISABLE_SR)
-					pI2CHandle->pI2Cx->I2C_CR1 |= (1<< 9);
-				// reset all the I2C handle definitions
-				I2C_CloseSendData();
-				//notify the application transmission complete
-				I2CEventCallBack(pi2CHandle ,I2C_EV_TX_CMPT);
-			}
-		}
+		I2C_BTF_Handle(pI2CHandle);
 	}
+	/*
+	 *
+	 *
+	 */
 	// Now check the RxNE and TxE
 	temp3= pI2CHandle->pI2Cx->I2C_SR1 & (1<<6); // Check the RxNE
 	if((temp1 && temp2 && temp3)){
 		 // handle for RxNe set
-	}
+		I2C_RXNE_Handle(pI2CHandle);
+}
 	temp3 = pI2CHandle->pI2Cx->I2C_SR1 & (1<<7);
-	// chec for Txe
+	// check for Txe
 	if((temp1 && temp2 && temp3)){
-			 // handle for Txe set
+		I2C_TXE_Handle(pI2CHandle);
+		}
+
+	}
+
+/*
+ *
+ * Replacing all logic with function
+ * 1) SBcheck function
+ *
+ */
+void I2C_SB_Handle(I2C_Handle_t *pI2CHandle){
+	// ready handle for SB. dont work in slave mode as in slave mode it is not neccessary
+			// In this block we will execute the address phase
+			if(pI2CHandle->txrxstate == I2C_BUSY_IN_TX){
+				ExecuteAddress_Mastersend(pI2CHandle->pI2Cx,pI2CHandle->devaddr);
+			}else if(pI2CHandle->txrxstate == I2C_BUSY_IN_RX){
+				ExecuteAddress_MasterReceive(pI2CHandle->pI2Cx, pI2CHandle->devaddr);
+			}
+}
+void I2C_BTF_Handle(I2C_Handle_t *pI2CHandle){
+	// handle for btf
+			// btf and TxE during transmission  // btf and rxne during reception
+			if(pI2CHandle->txrxstate == I2C_BUSY_IN_TX ){
+				if(pI2CHandle->pI2Cx->I2C_SR1 & (1<<2)){
+					// BTF and TXe is set
+					if(pI2CHandle->txlen == 0){
+						// close transmission only if repeated start is disabled or not activated
+						if(pI2CHandle->sr == I2C_DISABLE_SR)
+							pI2CHandle->pI2Cx->I2C_CR1 |= (1<< 9);
+						// reset all the I2C handle definitions
+						I2C_CloseSendData();
+						//notify the application transmission complete
+						I2CEventCallBack(pI2CHandle ,I2C_EV_TX_CMPT);
+					}
+				}
+			}
+			else if(pI2CHandle->txrxstate == I2C_BUSY_IN_TX ){
+				;
+			}
+
+}
+void I2C_RXNE_Handle(I2C_Handle_t *pI2CHandle){
+	if(pI2CHandle->pI2Cx->I2C_SR2 & (1<<0)){
+				// i2c is master
+					if(pI2CHandle->txrxstate == I2C_BUSY_IN_RX){
+					// data reception check condition based on length
+					if(pI2CHandle->rx_size ==1){
+						// 1 byte data reception
+					*pI2CHandle->prxbuffer = pI2CHandle->pI2Cx->I2C_DR;
+					pI2CHandle->rxlen --;
+
+					}else if(pI2CHandle->rx_size > 1){
+						// when the data is larger than 1 byte
+					if(pI2CHandle->rxlen <2){
+						I2C_Manage_ACK(pI2CHandle->pI2Cx, ENABLE);
+					}
+					*pI2CHandle->prxbuffer = pI2CHandle->pI2Cx->I2C_DR;
+					pI2CHandle->prxbuffer ++;
+					pI2CHandle->rxlen --;
+					if(pI2CHandle->rxlen == 0){
+						// close the i2C data reception and callback
+						// send stop byte
+						if(SR==I2C_DISABLE_SR)
+							pI2CHandle->pI2Cx->I2C_CR1 |= (1<< 9);
+						//close i2c rx
+						I2C_Close_ReceiveData();
+						// call back function
+						I2CEventCallBack(pI2CHandle ,I2C_EV_RX_CMPT);
+					}
+				}
+
+			}
+
 		}
 
 }
+
+void I2C_TXE_Handle(I2C_Handle_t *pI2CHandle){
+	 // handle for Txe set only when in master mode
+		// condition check for master or slave
+		if(pI2CHandle->pI2Cx->I2C_SR2 & (1<<0)) // condition check for MSL bit[0] in I2C_SR1 register{
+			if(pI2CHandle->txrxstate == I2C_BUSY_IN_TX){
+				if(pI2CHandle->txlen == 0){
+					// Load data to DR
+					pI2CHandle->pI2Cx->I2C_DR = *(pI2CHandle->ptxbuffer);
+					// decrement the txlen
+					pI2CHandle->txlen --;
+					// increment the buff
+					pI2CHandle->ptxbuffer++;
+				}
+			}
+
+}
+
 void I2CER_IRQhandling(I2C_Handle_t *pI2CHandle){
 
 }
