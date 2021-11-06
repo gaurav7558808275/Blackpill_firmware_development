@@ -691,6 +691,23 @@ void I2C_TXE_Handle(I2C_Handle_t *pI2CHandle){
 }
 
 void I2CER_IRQhandling(I2C_Handle_t *pI2CHandle){
+	uint8_t temp1,temp2;
+	// checking whether the ITERREN is set or not
+	temp1 = pI2CHandle->pI2Cx->I2C_CR2 & (1<< 8);
+	// check for BERR in SR1 register
+	temp2 = pI2CHandle->pI2Cx->I2C_SR1 & (1<<8);
+	// check for BERR and ITERREN event
+	if(temp1 & temp2){
+		I2C_BERR_Handle(pI2CHandle);
+	}
 
+
+
+
+
+}
+I2C_BERR_Handle(I2C_Handle_t *pI2CHandle){
+	pI2CHandle->pI2Cx->I2C_SR1 &= ~(1<<8);
+	I2CEventCallBack(pI2CHandle ,I2C_EV_BERR_CMPL);
 }
 
