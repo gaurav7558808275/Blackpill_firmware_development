@@ -47,9 +47,14 @@
  * I2c application peripherals events
  *
  */
-#define I2C_EV_TX_CMPLT 0
-#define I2C_EV_RX_CMPLT 1
-#define I2C_EV_STOP
+#define I2C_EV_TX_CMPLT  	0
+#define I2C_EV_RX_CMPLT  	1
+#define I2C_EV_STOP		 	2
+#define I2C_EV_BERR_CMPL 	3
+#define I2C_EV_ARLO_CMPL 	4
+#define I2C_EV_AF_CMPL   	5
+#define I2C_EV_OVR_CMPL  	6
+#define I2C_EV_TIMEOUT_CMPL 7
 
 /*
  * API PROTOTYPES.
@@ -115,7 +120,7 @@ uint8_t I2C_MasterReceive_IT(I2C_Handle_t *pI2CHandle, uint8_t *ptx_buff , uint3
  *
  */
 static void I2C_CloseSendData(I2C_Handle_t *pI2CHandle);
-static void I2C_Close_ReceiveData(I2C_Handle_t *pI2CHandle);
+static 	void I2C_Close_ReceiveData(I2C_Handle_t *pI2CHandle);
 /*
  * Interupt APIs
  */
@@ -131,10 +136,8 @@ void I2C_SSI_Enable(I2C_RegDef_t *I2C_Handle, uint8_t S_O_R);
 void I2C_SSOE_Enable(I2C_RegDef_t *I2C_Handle, uint8_t S_O_R);
 uint8_t I2C_BusyFlag(I2C_RegDef_t *I2C_Handle);
 /*
- *
+ *Sub-functions
  */
-
-// Sub-functions
 uint32_t CLK_Freq_calculate(void);
 
 /*

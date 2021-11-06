@@ -58,7 +58,14 @@ void I2C_SB_Handle(I2C_Handle_t *pI2CHandle);
 void I2C_BTF_Handle(I2C_Handle_t *pI2CHandle);
 void I2C_RXNE_Handle(I2C_Handle_t *pI2CHandle);
 void I2C_TXE_Handle(I2C_Handle_t *pI2CHandle);
-//static void I2CEventCallBack(I2C_Handle_t pI2CHandle,uint8_t I2C_EV_STOP);
+
+void I2CEventCallBack(I2C_Handle_t *pI2CHandle,uint8_t SOR);
+
+void I2C_BERR_Handle(I2C_Handle_t *pI2CHandle);
+void I2C_ARLO_Handle(I2C_Handle_t *pI2CHandle);
+void I2C_AF_Handle(I2C_Handle_t *pI2CHandle);
+void I2C_OVR_Handle(I2C_Handle_t *pI2CHandle);
+void I2C_TIMOUT_Handle(I2C_Handle_t *pI2CHandle);
 
 /*
  *
@@ -689,7 +696,10 @@ void I2C_TXE_Handle(I2C_Handle_t *pI2CHandle){
 			}
 
 }
-
+/*
+ * I2C error handling function declaration
+ *
+ */
 void I2CER_IRQhandling(I2C_Handle_t *pI2CHandle){
 	uint8_t temp1,temp2;
 	// checking whether the ITERREN is set or not
@@ -700,14 +710,41 @@ void I2CER_IRQhandling(I2C_Handle_t *pI2CHandle){
 	if(temp1 & temp2){
 		I2C_BERR_Handle(pI2CHandle);
 	}
-
+	// check the bit for ARLO bit
+	temp2 = pI2CHandle->pI2Cx->I2C_SR1 & (1<< 9);
+	if(temp1 & temp2){
+		I2C_ARLO_Handle(pI2CHandle);
+	}
+	temp2 = pI2CHandle->pI2Cx->I2C_SR1 & (1<<10);
+	if(temp1 & temp2){
+		I2C_AF_Handle(pI2CHandle);
+	}
 
 
 
 
 }
-I2C_BERR_Handle(I2C_Handle_t *pI2CHandle){
+void I2C_BERR_Handle(I2C_Handle_t *pI2CHandle){
+	// CLEAR THE BIT (FROM THE REFERENCE DOCUMENT)
 	pI2CHandle->pI2Cx->I2C_SR1 &= ~(1<<8);
+	// NOTIFY THE EVENT
 	I2CEventCallBack(pI2CHandle ,I2C_EV_BERR_CMPL);
 }
+void I2C_ARLO_Handle(I2C_Handle_t *pI2CHandle){
+	pI2CHandle->pI2Cx->I2C_SR1 &= ~(1<<9);
+	I2CEventCallBack(pI2CHandle ,I2C_EV_ARLO_CMPL);
+}
+void I2C_AF_Handle(I2C_Handle_t *pI2CHandle){
+	pI2CHandle->pI2Cx->I2C_SR1 &= ~(1<<10);
+	I2CEventCallBack(pI2CHandle ,I2C_EV_AF_CMPL);
+}
+void I2C_OVR_Handle(I2C_Handle_t *pI2CHandle){
+	pI2CHandle->pI2Cx->I2C_SR1 &= ~(1<<11);
+	I2CEventCallBack(pI2CHandle ,I2C_EV_OVR_CMPL);
+}
+void I2C_TIMOUT_Handle(I2C_Handle_t *pI2CHandle){
+	pI2CHandle->pI2Cx->I2C_SR1 &= ~(1<<14);
+	I2CEventCallBack(pI2CHandle ,I2C_EV_TIMEOUT_CMPL);
+}
+
 
