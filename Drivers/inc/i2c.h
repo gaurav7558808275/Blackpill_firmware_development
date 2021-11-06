@@ -42,6 +42,15 @@
  */
 #define I2C_DISABLE_SR 	 0
 #define I2C_ENABLE_SR    1
+
+/*
+ * I2c application peripherals events
+ *
+ */
+#define I2C_EV_TX_CMPLT 0
+#define I2C_EV_RX_CMPLT 1
+#define I2C_EV_STOP
+
 /*
  * API PROTOTYPES.
  *
@@ -102,7 +111,13 @@ void I2C_Manage_ACK(I2C_RegDef_t *pI2C, uint8_t S_O_R);
 uint8_t I2C_MasterSend_IT(I2C_Handle_t *pI2CHandle, uint8_t *ptx_buff , uint32_t length,uint8_t Sadd,uint8_t SR);
 uint8_t I2C_MasterReceive_IT(I2C_Handle_t *pI2CHandle, uint8_t *ptx_buff , uint32_t length,uint8_t Sadd,uint8_t SR);
 /*
+ * EVent send and recieve API
  *
+ */
+static void I2C_CloseSendData(I2C_Handle_t *pI2CHandle);
+static void I2C_Close_ReceiveData(I2C_Handle_t *pI2CHandle);
+/*
+ * Interupt APIs
  */
 void I2C_IRQ_IT_config(uint8_t IRQ_Number, uint8_t S_O_R);  // SET OR RESET
 void I2C_Priority_Config(uint8_t IRQ_number , uint32_t priority);

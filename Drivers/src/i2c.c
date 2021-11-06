@@ -46,8 +46,8 @@ static void I2C_GenerateStartCondition(I2C_RegDef_t *pI2C_Handle);
 static void ExecuteAddress_Mastersend(I2C_RegDef_t * pI2CHandle,uint8_t Saddr);
 static void ExecuteAddress_MasterReceive(I2C_RegDef_t *pI2CHandle,uint8_t Saddr);
 static void Read_clear_ADDR(I2C_RegDef_t *pI2CHandle);
-void I2C_Manage_ACK(I2C_RegDef_t *pI2C, uint8_t S_O_R);
-void I2C_Clear_ADDRIT(I2C_Handle_t *pI2CHandle);
+ void I2C_Manage_ACK(I2C_RegDef_t *pI2C, uint8_t S_O_R);
+ void I2C_Clear_ADDRIT(I2C_Handle_t *pI2CHandle);
 
 /*
  *  The handle functions are divided into sub function
@@ -58,6 +58,7 @@ void I2C_SB_Handle(I2C_Handle_t *pI2CHandle);
 void I2C_BTF_Handle(I2C_Handle_t *pI2CHandle);
 void I2C_RXNE_Handle(I2C_Handle_t *pI2CHandle);
 void I2C_TXE_Handle(I2C_Handle_t *pI2CHandle);
+//static void I2CEventCallBack(I2C_Handle_t pI2CHandle,uint8_t I2C_EV_STOP);
 
 /*
  *
@@ -516,7 +517,7 @@ void I2CEV_IRQHandling(I2C_Handle_t *pI2CHandle){
 	//check ADDR
 	if(temp2 && temp3){
 			// ready handle for  ADDR
-		Read_clear_ADDR(pI2CHandle->pI2Cx);
+		I2C_Clear_ADDRIT(pI2CHandle);
 		}
 	/*// check ADD10
 	temp3 = pI2CHandle->pI2Cx->I2C_SR1 & (1<<3);
@@ -560,6 +561,44 @@ void I2CEV_IRQHandling(I2C_Handle_t *pI2CHandle){
 		}
 
 	}
+/*
+ * @void I2C_CloseSendData() function declaration
+ */
+static void I2C_CloseSendData(I2C_Handle_t *pI2CHandle){
+// Closing the reception by initialisaing tho reset condition
+	// disable the interrupts
+	// disabling the ITBUFEN
+	pI2CHandle->pI2Cx->I2C_CR2 &=~(1<<10);
+	// disabling the ITEVTEN
+	pI2CHandle->pI2Cx->I2C_CR2 &=~(1<<11);
+	pI2CHandle->txrxstate = I2C_READY;
+	pI2CHandle->prxbuffer = NULL;
+	pI2CHandle->rx_size = 0;
+	pI2CHandle->rxlen = 0;
+	if(pI2CHandle->I2C_Config.I2C_ACKControl == I2C_ACK_ENABLE){
+		I2C_Manage_ACK(pI2CHandle->pI2Cx , ENABLE);
+	}
+}
+/*
+ * @I2C_Close_ReceiveData() function declaration
+ *
+ */
+static void I2C_Close_ReceiveData(I2C_Handle_t *pI2CHandle){
+
+	// disable the interrupts
+		// disabling the ITBUFEN
+		pI2CHandle->pI2Cx->I2C_CR2 &=~(1<<10);
+		// disabling the ITEVTEN
+		pI2CHandle->pI2Cx->I2C_CR2 &=~(1<<11);
+		pI2CHandle->pI2Cx->I2C_CR2 &=~(1<<11);
+			pI2CHandle->txrxstate = I2C_READY;
+			pI2CHandle->ptxbuffer = NULL;
+			pI2CHandle->txlen = 0;
+			if(pI2CHandle->I2C_Config.I2C_ACKControl == I2C_ACK_ENABLE){
+				I2C_Manage_ACK(pI2CHandle->pI2Cx , ENABLE);
+			}
+}
+
 
 /*
  *
@@ -587,9 +626,9 @@ void I2C_BTF_Handle(I2C_Handle_t *pI2CHandle){
 						if(pI2CHandle->sr == I2C_DISABLE_SR)
 							pI2CHandle->pI2Cx->I2C_CR1 |= (1<< 9);
 						// reset all the I2C handle definitions
-						I2C_CloseSendData();
+						I2C_CloseSendData(pI2CHandle);
 						//notify the application transmission complete
-						I2CEventCallBack(pI2CHandle ,I2C_EV_TX_CMPT);
+						I2CEventCallBack(pI2CHandle ,I2C_EV_TX_CMPLT);
 					}
 				}
 			}
@@ -619,12 +658,12 @@ void I2C_RXNE_Handle(I2C_Handle_t *pI2CHandle){
 					if(pI2CHandle->rxlen == 0){
 						// close the i2C data reception and callback
 						// send stop byte
-						if(SR==I2C_DISABLE_SR)
+						if(pI2CHandle->sr==I2C_DISABLE_SR)
 							pI2CHandle->pI2Cx->I2C_CR1 |= (1<< 9);
 						//close i2c rx
-						I2C_Close_ReceiveData();
+						I2C_Close_ReceiveData(pI2CHandle);
 						// call back function
-						I2CEventCallBack(pI2CHandle ,I2C_EV_RX_CMPT);
+						I2CEventCallBack(pI2CHandle ,I2C_EV_RX_CMPLT);
 					}
 				}
 
