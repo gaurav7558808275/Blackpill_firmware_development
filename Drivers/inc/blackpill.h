@@ -364,10 +364,13 @@ typedef struct
  *  FROM VECTOR TABLE REFERENCE MANUAL
  *
  */
+		// I2C1
 #define I2C1_EV		38
 #define I2C1_ER		39
+       // I2C2
 #define I2C2_EV		40
 #define I2C2_ER		41
+	   // I2C3
 #define I2C3_EV		72
 #define I2C3_ER		73
 

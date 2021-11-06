@@ -26,8 +26,8 @@ uint8_t I2C_MasterReceive_IT(I2C_Handle_t *pI2CHandle, uint8_t *ptx_buff , uint3
 
 void I2C_IRQ_IT_config(uint8_t IRQ_Number, uint8_t S_O_R);  // SET OR RESET /* used*/
 void I2C_Priority_Config(uint8_t IRQ_number , uint32_t priority); /* used*/
-void I2CEV_IRQ_Handling(I2C_Handle_t *pI2CHandle); /* used */
-void I2CER_IRQ_Handling(I2C_Handle_t *pI2CHandle); /*used */
+void I2CEV_IRQHandling(I2C_Handle_t *pI2CHandle); /* used */
+void I2CER_IRQHandling(I2C_Handle_t *pI2CHandle); /*used */
 
 void I2C_Priority_Config(uint8_t IRQ_number , uint32_t priority);
 
@@ -571,7 +571,7 @@ void I2CEV_IRQHandling(I2C_Handle_t *pI2CHandle){
 /*
  * @void I2C_CloseSendData() function declaration
  */
-static void I2C_CloseSendData(I2C_Handle_t *pI2CHandle){
+ void I2C_CloseSendData(I2C_Handle_t *pI2CHandle){
 // Closing the reception by initialisaing tho reset condition
 	// disable the interrupts
 	// disabling the ITBUFEN
@@ -590,7 +590,7 @@ static void I2C_CloseSendData(I2C_Handle_t *pI2CHandle){
  * @I2C_Close_ReceiveData() function declaration
  *
  */
-static void I2C_Close_ReceiveData(I2C_Handle_t *pI2CHandle){
+ void I2C_Close_ReceiveData(I2C_Handle_t *pI2CHandle){
 
 	// disable the interrupts
 		// disabling the ITBUFEN
@@ -697,7 +697,7 @@ void I2C_TXE_Handle(I2C_Handle_t *pI2CHandle){
 
 }
 /*
- * I2C error handling function declaration
+ * sI2C error handling function declaration
  *
  */
 void I2CER_IRQhandling(I2C_Handle_t *pI2CHandle){
