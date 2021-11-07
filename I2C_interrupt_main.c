@@ -159,9 +159,9 @@ void I2CEventCallBack(I2C_Handle_t *pI2CHandle,uint8_t SOR){
 		}
 	}
 	else if(SOR ==I2C_EVENT_SLAVE_TRANS ){
-		;
+		printf("slave Transmitt complete\n ");
 	}
 	else if(SOR == I2C_EVENT_SLAVE_RCV){
-		;
+		printf(" slave receive completed");
 	}
 }
