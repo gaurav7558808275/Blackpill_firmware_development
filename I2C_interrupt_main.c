@@ -158,4 +158,10 @@ void I2CEventCallBack(I2C_Handle_t *pI2CHandle,uint8_t SOR){
 
 		}
 	}
+	else if(SOR ==I2C_EVENT_SLAVE_TRANS ){
+		;
+	}
+	else if(SOR == I2C_EVENT_SLAVE_RCV){
+		;
+	}
 }

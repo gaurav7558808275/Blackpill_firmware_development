@@ -24,6 +24,9 @@ void I2C_MasterReceive(I2C_Handle_t *pI2CHandle, uint8_t *prx_buff , uint32_t le
 uint8_t I2C_MasterSend_IT(I2C_Handle_t *pI2CHandle, uint8_t *ptx_buff , uint32_t length,uint8_t Sadd,uint8_t SR); /*used*/
 uint8_t I2C_MasterReceive_IT(I2C_Handle_t *pI2CHandle, uint8_t *ptx_buff , uint32_t length,uint8_t Sadd,uint8_t SR);/*used*/
 
+void I2C_SlaveSend_Data(I2C_Handle_t *pI2CHandle, uint8_t data);
+uint8_t I2C_SlaveReceive_Data(I2C_Handle_t *pI2CHandle);
+
 void I2C_IRQ_IT_config(uint8_t IRQ_Number, uint8_t S_O_R);  // SET OR RESET /* used*/
 void I2C_Priority_Config(uint8_t IRQ_number , uint32_t priority); /* used*/
 void I2CEV_IRQHandling(I2C_Handle_t *pI2CHandle); /* used */
@@ -538,7 +541,7 @@ void I2CEV_IRQHandling(I2C_Handle_t *pI2CHandle){
 	// check bit STOPF
 	temp3 = pI2CHandle->pI2Cx->I2C_SR1 & (1<<4);
 	if(temp2 && temp3){
-			// handle for STOPF bit set // only executed ini the slave mode
+			// handle for STOPF bit set // only executed in the slave mode
 		pI2CHandle->pI2Cx->I2C_CR1 |= 0x0000;
 		I2CEventCallBack(pI2CHandle ,I2C_EV_STOP);
 		}
@@ -677,15 +680,29 @@ void I2C_RXNE_Handle(I2C_Handle_t *pI2CHandle){
 			}
 
 		}
+	else{
+		// slave transmitt condition
+		if(!(pI2CHandle->pI2Cx->I2C_SR2 & (1<<2))){
+		I2CEventCallBack(pI2CHandle , I2C_EVENT_SLAVE_RCV);
+	}
 
+}
+}
+/*
+ * Slave API
+ */
+void I2C_SlaveSend_Data(I2C_Handle_t *pI2CHandle, uint8_t data){
+	pI2CHandle->pI2Cx->I2C_DR = data;
+}
+uint8_t I2C_SlaveReceive_Data(I2C_Handle_t *pI2CHandle){
+	return pI2CHandle->pI2Cx->I2C_DR;
 }
 
 void I2C_TXE_Handle(I2C_Handle_t *pI2CHandle){
 	 // handle for Txe set only when in master mode
 		// condition check for master or slave
-		if(pI2CHandle->pI2Cx->I2C_SR2 & (1<<0)) // condition check for MSL bit[0] in I2C_SR1 register{
+		if(pI2CHandle->pI2Cx->I2C_SR2 & (1<<0)){ // condition check for MSL bit[0] in I2C_SR1 register{
 			if(pI2CHandle->txrxstate == I2C_BUSY_IN_TX){
-				if(pI2CHandle->txlen == 0){
 					// Load data to DR
 					pI2CHandle->pI2Cx->I2C_DR = *(pI2CHandle->ptxbuffer);
 					// decrement the txlen
@@ -694,8 +711,14 @@ void I2C_TXE_Handle(I2C_Handle_t *pI2CHandle){
 					pI2CHandle->ptxbuffer++;
 				}
 			}
-
+		else{
+			// slave transmitt condition
+			if(pI2CHandle->pI2Cx->I2C_SR2 & (1<<2)){
+				I2CEventCallBack(pI2CHandle , I2C_EVENT_SLAVE_TRANS);
+			 }
+		}
 }
+
 /*
  * sI2C error handling function declaration
  *
@@ -715,13 +738,11 @@ void I2CER_IRQhandling(I2C_Handle_t *pI2CHandle){
 	if(temp1 & temp2){
 		I2C_ARLO_Handle(pI2CHandle);
 	}
+	// ack failure
 	temp2 = pI2CHandle->pI2Cx->I2C_SR1 & (1<<10);
 	if(temp1 & temp2){
 		I2C_AF_Handle(pI2CHandle);
 	}
-
-
-
 
 }
 void I2C_BERR_Handle(I2C_Handle_t *pI2CHandle){

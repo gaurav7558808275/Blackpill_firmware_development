@@ -47,14 +47,16 @@
  * I2c application peripherals events
  *
  */
-#define I2C_EV_TX_CMPLT  	0
-#define I2C_EV_RX_CMPLT  	1
-#define I2C_EV_STOP		 	2
-#define I2C_EV_BERR_CMPL 	3
-#define I2C_EV_ARLO_CMPL 	4
-#define I2C_EV_AF_CMPL   	5
-#define I2C_EV_OVR_CMPL  	6
-#define I2C_EV_TIMEOUT_CMPL 7
+#define I2C_EV_TX_CMPLT  		0
+#define I2C_EV_RX_CMPLT  		1
+#define I2C_EV_STOP		 		2
+#define I2C_EV_BERR_CMPL 		3
+#define I2C_EV_ARLO_CMPL 		4
+#define I2C_EV_AF_CMPL   		5
+#define I2C_EV_OVR_CMPL  		6
+#define I2C_EV_TIMEOUT_CMPL		7
+#define I2C_EVENT_SLAVE_TRANS	8
+#define I2C_EVENT_SLAVE_RCV		9
 
 /*
  * API PROTOTYPES.
@@ -115,6 +117,11 @@ void I2C_Manage_ACK(I2C_RegDef_t *pI2C, uint8_t S_O_R);
  */
 uint8_t I2C_MasterSend_IT(I2C_Handle_t *pI2CHandle, uint8_t *ptx_buff , uint32_t length,uint8_t Sadd,uint8_t SR);
 uint8_t I2C_MasterReceive_IT(I2C_Handle_t *pI2CHandle, uint8_t *ptx_buff , uint32_t length,uint8_t Sadd,uint8_t SR);
+/*
+ * I2C SLAVE API
+ */
+void I2C_SlaveSend_Data(I2C_Handle_t *pI2CHandle, uint8_t data);
+uint8_t I2C_SlaveReceive_Data(I2C_Handle_t *pI2CHandle);
 /*
  * EVent send and recieve API
  *
