@@ -88,7 +88,7 @@
 
 /*----------------------------------APB1 PERIPHERALS------------------------------------------------------------*/
 
-#define UART2_BASE_ADDR				0x40004400UL		// UART's
+#define USART2_BASE_ADDR				0x40004400UL		// UART's
 
 #define SPI2_BASE_ADDR				0x40003800UL
 #define SPI3_BASE_ADDR				0x40003C00UL		// SPI's
@@ -496,4 +496,55 @@ typedef struct
 
 
 #define ADC1  		((ADC_Reg_Def*)ADC1_BASE_ADDR)
+/*
+ * UART peripheral structure definition
+ *
+ *  // transmission
+ *
+ * 1) program the Mbit in CR1 register for length 8/9
+ * 2) Program the number of stop bit in CR2 register
+ * 3)  select the baud rate in BRR register, visit the stable frequencies
+ * 4) Set the TE bit for transmit enable block
+ * 5) enable the UART in CR1 register UE bit
+ * 6) if txe is set send data into DR register,
+ * 7) check the TC in SR for transmission complete after writing the last bit
+ *
+ * // reception
+ * 1) program the M-bit for word length (both the receiver and transmitter)
+ * 2) program the number of stop bits
+ * 3) select the baud rate in the BRR register visit the stable frequencies
+ * 4) enable the USART by writ'n to UE bit
+ * 5) enable the RE bit in CR1 register
+ * 6) when the character is recieved wait till the rxne bit is set then transfer contents to buffer from DR
+ *
+ *
+ */
+typedef struct
+{
+	uint32_t __vol USART_SR;
+	uint32_t __vol USART_DR;
+	uint32_t __vol USART_BRR;
+	uint32_t __vol USART_CR1;
+	uint32_t __vol USART_CR2;
+	uint32_t __vol USART_CR3;
+	uint32_t __vol USART_GTPR;
+
+}USART_Reg_Def;
+
+#define USART1 	((USART_Reg_Def *)USART1_BASE_ADDR)
+#define USART2 	((USART_Reg_Def *)USART2_BASE_ADDR)
+#define USART6 	((USART_Reg_Def *)USART6_BASE_ADDR)
+/*
+ * clock enable for USART
+ */
+
+#define USART1_CLOCK_ENABLE()		(RCC->RCC_APB2ENR |= (1<<4))
+#define USART2_CLOCK_ENABLE()		(RCC->RCC_APB1ENR |= (1<<17))
+#define USART6_CLOCK_ENABLE()		(RCC->RCC_APB2ENR |= (1<<6))
+/*
+ * clock disbale macro
+ */
+#define USART1_CLOCK_DISABLE()		(RCC->RCC_APB2ENR &= ~(1<<4))
+#define USART2_CLOCK_DISABLE()		(RCC->RCC_APB1ENR &= ~(1<<17))
+#define USART6_CLOCK_DISABLE()		(RCC->RCC_APB2ENR &= ~(1<<6))
 #endif /* DRIVERS_INC_BLACKPILL_H_ */

@@ -182,9 +182,11 @@ void I2C_Init(I2C_Handle_t *I2C_Handle){
 	I2C_Handle->pI2Cx->I2C_CR2 |= (tempreg & 0x3F);  //  I2C_Handle->pI2Cx->I2C_CR2 |= (tempreg & 0x3F)
 
 	// register I2C_OAR2 Program device own address
+	tempreg =0;
 	tempreg = I2C_Handle->I2C_Config.I2C_Device_Addr << 1; //ADD[0] is Ignored
 	I2C_Handle->pI2Cx->I2C_OAR1 |= (tempreg & 0xFE); // FROM BIT[1]
 	I2C_Handle->pI2Cx->I2C_OAR1 &= ~(1<<15);  // 7 bit addressing
+	tempreg=0;
 	tempreg |=(1<<4);
 	I2C_Handle->pI2Cx->I2C_OAR1 |= tempreg;
 	uint16_t CCR_value =0;
@@ -684,9 +686,9 @@ void I2C_RXNE_Handle(I2C_Handle_t *pI2CHandle){
 		// slave transmitt condition
 		if(!(pI2CHandle->pI2Cx->I2C_SR2 & (1<<2))){
 		I2CEventCallBack(pI2CHandle , I2C_EVENT_SLAVE_RCV);
-	}
+		}
 
-}
+	}
 }
 /*
  * Slave API
