@@ -13,6 +13,10 @@
 #include "timer.h"
 #include "stdio.h"
 
+
+//extern void initialise_monitor_handles();
+uint8_t rx= RESET;
+
 I2C_Handle_t I2C_Handle;  // I2C handle for configuration
 GPIOx_Handle I2C_gpio;	  // gpio pin config for I2C
 GPIOx_Handle button;// Button initilaised.
@@ -82,6 +86,7 @@ void Button_init(){
 
 int main(void)
 {
+	//initialise_monitor_handles();
 	timer_init();  // for delay function
 	I2C_Gpio_Pins();
 	I2C_Init_main();
@@ -103,11 +108,18 @@ int main(void)
 			while(I2C_MasterReceive_IT(&I2C_Handle,&length,length, SLAVE_ADDR, I2C_ENABLE_SR) != I2C_READY);
 			// Send the command code 0x52
 			command = 0x52;
-			I2C_MasterSend(&I2C_Handle, &command,1,SLAVE_ADDR,I2C_ENABLE_SR);
+			while(I2C_MasterSend_IT(&I2C_Handle,&command,length, SLAVE_ADDR, I2C_ENABLE_SR)!= I2C_READY);
 			// receive the data
-			I2C_MasterReceive(&I2C_Handle,(uint8_t*)buff,length,SLAVE_ADDR,I2C_DISABLE_SR);
+			while(I2C_MasterReceive_IT(&I2C_Handle,(uint8_t *)buff,length, SLAVE_ADDR, I2C_ENABLE_SR) != I2C_READY);
+
+			rx = RESET; // reseting back
+			while(rx != SET){
+
+			}
 			buff[length +1] = '\0'; // used for semihosting
 			printf("Data:  %s",(char *)buff); // semihosting print
+			rx = RESET;
+
 		}
 	}
 }
@@ -128,23 +140,22 @@ void I2C1_ER_IRQHandler(void){
 void I2CEventCallBack(I2C_Handle_t *pI2CHandle,uint8_t SOR){
 
 	if(SOR == I2C_EV_TX_CMPLT){
-	printf("The TX  event was complete");
+	printf("The TX  event was complete\n");
 	}else if(SOR == I2C_EV_RX_CMPLT){
-	printf("The RX  event was complete");
+	printf("The RX  event was complete\n");
+		rx =SET;
 	}else if(SOR == I2C_EV_RX_CMPLT){
-	printf("The RX  event was complete");
-	}else if(SOR == I2C_EV_STOP){
-	printf("The EV_STOP event was complete");
-	}else if(SOR == I2C_EV_BERR_CMPL){
-	printf("The EV_BERR event was complete");
-	}else if(SOR == I2C_EV_ARLO_CMPL){
-	printf("The EV_ARLO event was complete");
+	printf("The RX  event was complete\n");
 	}else if(SOR == I2C_EV_AF_CMPL){
-	printf("The EV_AF event was complete");
-	}else if(SOR == I2C_EV_OVR_CMPL){
-	printf("The EV_OVR event was complete");
-	}else
-	if(SOR == I2C_EV_TIMEOUT_CMPL){
-	printf("The EV_TIMEOUT event was complete");
+	printf(" ACK not received\n");
+
+	I2C_CloseSendData(pI2CHandle);
+	// GENERETE THE STOP CONDITION
+	if(pI2CHandle->sr == I2C_DISABLE_SR){  // Generate the stop condition
+			pI2CHandle->pI2Cx->I2C_CR1 |= (1<< 9);// writing into the bit[9] in CR1b
+	// infinite loop for
+			while(1);
+
+		}
 	}
 }
