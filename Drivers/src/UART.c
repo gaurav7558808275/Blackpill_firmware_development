@@ -14,18 +14,20 @@ void USART_PeripheralControl(USART_Reg_Def *pUSARTx, uint8_t Cmd); //DONE
 void USART_Init(USART_Handle_t *pUSARTHandle); //DONE
 void USART_Deinit(USART_Reg_Def *pUSARTx); // done
 
-void USART_SendData(USART_Handle_t *pUSARTHandle, uint8_t *pTxBuffer, uint32_t Len);
-void USART_ReceiveData(USART_Handle_t *pUSARTHandle, uint8_t *pRxBuffer, uint32_t Len);
-uint8_t USART_SendDataIT(USART_Handle_t pUSARTHandle,uint8_t *pTxBuffer, uint32_t Len);
-uint8_t USART_ReceiveDataIT(USART_Handle_t pUSARTHandle, uint8_t *pRxBuffer, uint32_t Len);
+void USART_SendData(USART_Handle_t *pUSARTHandle, uint8_t *pTxBuffer, uint32_t Len); // DONE
+void USART_ReceiveData(USART_Handle_t *pUSARTHandle, uint8_t *pRxBuffer, uint32_t Len); //DONE
+uint8_t USART_SendDataIT(USART_Handle_t *pUSARTHandle,uint8_t *pTxBuffer, uint32_t Len); //DONE
+uint8_t USART_ReceiveDataIT(USART_Handle_t *pUSARTHandle,uint8_t *pRxBuffer, uint32_t Len);//DONE
 
 void USART_IRQInterruptConfig(uint8_t IRQNumber, uint8_t EnorDi); //done
 void USART_IRQPriorityConfig(uint8_t IRQNumber, uint32_t IRQPriority);//done
 void USART_IRQHandling(USART_Handle_t pHandle);
 
 void USART_PeripheralControl(USART_Reg_Def *pUSARTx, uint8_t EnOrDi); //done
-uint8_t USART_GetFlagStatus(USART_Reg_Def *pUSARTx , uint32_t FlagName);
+uint8_t USART_GetFlagStatus(USART_Reg_Def *pUSARTx , uint32_t FlagName); //DONE
 void USART_ClearFlag(USART_Reg_Def *pUSARTx, uint16_t StatusFlagName);
+void USART_SetBaudRate(USART_Reg_Def *pUSARTx, uint32_t BaudRate);
+
 
 /*
  *
@@ -158,6 +160,7 @@ void USART_Init(USART_Handle_t *pUSARTHandle){
 
 		//Implement the code to configure the baud rate
 		//We will cover this in the lecture. No action required here
+		USART_SetBaudRate(pUSARTHandle->pUSARTx ,pUSARTHandle->USART_Config.USART_baud);
 
 	}
 /*
@@ -376,30 +379,30 @@ void USART_ReceiveData(USART_Handle_t *pUSARTHandle, uint8_t *pRxBuffer, uint32_
  * @Note              - Resolve all the TODOs
 
  */
-/*
+
 uint8_t USART_SendDataIT(USART_Handle_t *pUSARTHandle,uint8_t *pTxBuffer, uint32_t Len)
 {
-	uint8_t txstate = pUSARTHandle->TODO;
+	uint8_t txstate = pUSARTHandle->RxBusyState;
 
 	if(txstate != USART_BUSY_IN_TX)
 	{
-		pUSARTHandle->TODO = Len;
-		pUSARTHandle->pTxBuffer = TODO;
-		pUSARTHandle->TxBusyState = TODO;
+		pUSARTHandle->TxLen = Len;
+		pUSARTHandle->pTxBuffer = pTxBuffer;
+		pUSARTHandle->TxBusyState = USART_BUSY_IN_RX;
 
 		//Implement the code to enable interrupt for TXE
-		TODO
+		pUSARTHandle->pUSARTx->USART_CR3 |=(1<< 7); //TXEIE BIT SET
 
 
 		//Implement the code to enable interrupt for TC
-		TODO
+		pUSARTHandle->pUSARTx->USART_CR3 |=(1<< 6);
 
 
 	}
 
 	return txstate;
 
-}*/
+}
 
 
 /*********************************************************************
@@ -416,25 +419,25 @@ uint8_t USART_SendDataIT(USART_Handle_t *pUSARTHandle,uint8_t *pTxBuffer, uint32
  * @Note              - Resolve all the TODOs
 
  */
-/*
+
 uint8_t USART_ReceiveDataIT(USART_Handle_t *pUSARTHandle,uint8_t *pRxBuffer, uint32_t Len)
 {
-	uint8_t rxstate = pUSARTHandle->TODO;
+	uint8_t rxstate = pUSARTHandle->RxBusyState;
 
-	if(rxstate != TODO)
+	if(rxstate != USART_BUSY_IN_RX)
 	{
 		pUSARTHandle->RxLen = Len;
-		pUSARTHandle->pRxBuffer = TODO;
-		pUSARTHandle->RxBusyState = TODO;
+		pUSARTHandle->pRxBuffer = pRxBuffer;
+		pUSARTHandle->RxBusyState = USART_BUSY_IN_RX;
 
 		//Implement the code to enable interrupt for RXNE
-		TODO
+		pUSARTHandle->pUSARTx->USART_CR3 |=(1<< 5 ); //RXNEIE BIT IS SET
 
 	}
 
 	return rxstate;
 
-} */
+}
 /*
  *
  */
@@ -445,4 +448,15 @@ uint8_t USART_GetFlagStatus(USART_Reg_Def *pUSARTx , uint32_t FlagName){
 	else{
 		return RESET;
 	}
+}
+/*
+ * @ BAUD RATE FUNCTION
+ *
+ *
+ */
+void USART_SetBaudRate(USART_Reg_Def *pUSARTx, uint32_t BaudRate){
+
+
+
+
 }

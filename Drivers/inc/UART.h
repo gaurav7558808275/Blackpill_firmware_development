@@ -77,7 +77,13 @@
 #define USART_FLAG_TXE 		(1<<7)
 #define USART_FLAG_RXNE		(1<<5)
 #define USART_FLAG_TC		(1<<6)
-
+/*
+ * Txrx states
+ *
+ */
+#define USART_BUSY_IN_TX		1
+#define USART_BUSY_IN_RX		2
+#define USART_READY				0
 /*
  * USART Configure structure
  *
@@ -99,6 +105,13 @@ typedef struct{
 
 	USART_Reg_Def  *pUSARTx;
 	USART_Reg_Config USART_Config;
+	// for interrupt based API
+	uint8_t *pTxBuffer;
+	uint8_t *pRxBuffer;
+	uint32_t TxLen;
+	uint32_t RxLen;
+	uint8_t TxBusyState;
+	uint8_t RxBusyState;
 
 }USART_Handle_t;
 
@@ -117,8 +130,8 @@ void USART_Deinit(USART_Reg_Def *pUSARTx);
  */
 void USART_SendData(USART_Handle_t *pUSARTHandle, uint8_t *pTxBuffer, uint32_t Len);
 void USART_ReceiveData(USART_Handle_t *pUSARTHandle, uint8_t *pRxBuffer, uint32_t Len);
-uint8_t USART_SendDataIT(USART_Handle_t pUSARTHandle,uint8_t *pTxBuffer, uint32_t Len);
-uint8_t USART_ReceiveDataIT(USART_Handle_t pUSARTHandle, uint8_t *pRxBuffer, uint32_t Len);
+uint8_t USART_SendDataIT(USART_Handle_t *pUSARTHandle,uint8_t *pTxBuffer, uint32_t Len);
+uint8_t USART_ReceiveDataIT(USART_Handle_t *pUSARTHandle,uint8_t *pRxBuffer, uint32_t Len);
 
 /*
  * IRQ Configuration and ISR handling
@@ -138,7 +151,6 @@ void USART_ClearFlag(USART_Reg_Def *pUSARTx, uint16_t StatusFlagName);
  * Application callback
  */
 void USART_ApplicationEventCallback(USART_Handle_t *pUSARTHandle,uint8_t AppEv);
-
 
 
 
