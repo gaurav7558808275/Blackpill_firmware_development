@@ -7,10 +7,10 @@
 
 #include "i2c.h"
 #include "blackpill.h"
+#include "blackpill_rcc.h"
 
-uint32_t AHB_Prescalar_arr[9] = {2,4,8,16,32,64,128,256,512};
-uint32_t APB1_Prescalar_arr[4] = {1,4,8,16};
-
+ extern uint32_t AHB_Prescalar_arr[9];
+ extern uint32_t APB1_Prescalar_arr[4];
 
 
 void I2C_Clock_EN(I2C_RegDef_t *pI2Cx);	// I2C Clock Initialize

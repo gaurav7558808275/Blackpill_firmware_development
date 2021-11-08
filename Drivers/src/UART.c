@@ -7,6 +7,7 @@
 
 
 #include "UART.h"
+#include "blackpill_rcc.h"
 
 void USART_Clock_Control(USART_Reg_Def *pUSART , uint8_t SOR); //DONE
 void USART_PeripheralControl(USART_Reg_Def *pUSARTx, uint8_t Cmd); //DONE
@@ -25,7 +26,8 @@ void USART_IRQHandling(USART_Handle_t pHandle);
 
 void USART_PeripheralControl(USART_Reg_Def *pUSARTx, uint8_t EnOrDi); //done
 uint8_t USART_GetFlagStatus(USART_Reg_Def *pUSARTx , uint32_t FlagName); //DONE
-void USART_ClearFlag(USART_Reg_Def *pUSARTx, uint16_t StatusFlagName);
+void USART_ClearFlag(USART_Reg_Def *pUSARTx, uint16_t StatusFlagName);//done
+
 void USART_SetBaudRate(USART_Reg_Def *pUSARTx, uint32_t BaudRate);
 
 
@@ -450,13 +452,52 @@ uint8_t USART_GetFlagStatus(USART_Reg_Def *pUSARTx , uint32_t FlagName){
 	}
 }
 /*
+ * flag clear API
+ */
+void USART_ClearFlag(USART_Reg_Def *pUSARTx, uint16_t StatusFlagName){
+	pUSARTx->USART_SR &= ~(1<< StatusFlagName);
+}
+
+/*
  * @ BAUD RATE FUNCTION
  *
  *
  */
 void USART_SetBaudRate(USART_Reg_Def *pUSARTx, uint32_t BaudRate){
 
+	// to store the system clock
+	uint32_t fclk =0;
+	//final value
+	uint32_t usartval =0;
+	//mantissa part and floating part
+	uint32_t M,F;
+	//
+	uint32_t tempreg =0;
+	//usarts available on APB2
+	if((pUSARTx == USART1) & (pUSARTx == USART6)){
 
+		fclk = APB2_CLK_Freq_Calculate();
+	} else {
+		fclk = APB1_CLK_Freq_Calculate();
+	}
+	//  check for OVER8 bit
+	if(pUSARTx->USART_CR1 & (1<<15)){
+		usartval = (25*fclk)/(2*BaudRate); // formulae is reference manual
+	}else{
+		usartval = (25*fclk)/(4*BaudRate);
+	}
 
+	M = usartval/100; // we get the mantissa
+	tempreg |= (M << 4);
+	F = usartval - (M * 100);
+	// calculate the fractional value
+	if(pUSARTx->USART_CR1 & (1<<15)){
+		// ovesampling 8
+		 F = ((( F * 8)+ 50) / 100)& ((uint8_t)0x07);
+	}else{
+		 F = ((( F * 16)+ 50) / 100)& ((uint8_t)0x07);
+	}
+	tempreg |= F;
+	pUSARTx->USART_BRR |=(tempreg);
 
 }
