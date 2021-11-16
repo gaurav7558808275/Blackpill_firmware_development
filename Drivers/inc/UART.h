@@ -85,6 +85,18 @@
 #define USART_BUSY_IN_RX		2
 #define USART_READY				0
 /*
+ * CALLBACK FUNCTONS MACRO
+ *
+ */
+#define USART_EVENT_TX_CMPLT 0
+#define USART_EVENT_RX_CMPLT 1
+#define USART_EVENT_CTS		 2
+#define USART_EVENT_IDLE     3
+#define USART_EVENT_ORE      4
+#define USART_ERREVENT_FE	 5
+#define USART_ERREVENT_NE	 6
+#define USART_ERREVENT_ORE	 7
+/*
  * USART Configure structure
  *
  */
