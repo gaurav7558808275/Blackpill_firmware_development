@@ -8,8 +8,8 @@
 
 #include "blackpill_rcc.h"
 
- AHB_Prescalar_arr[9] = {2,4,8,16,32,64,128,256,512};
- APB1_Prescalar_arr[4] = {1,4,8,16};
+ int AHB_Prescalar_arr[9] = {2,4,8,16,32,64,128,256,512};
+ int APB1_Prescalar_arr[4] = {1,4,8,16};
 
 uint32_t APB1_CLK_Freq_Calculate(void); // usart2
 uint32_t APB2_CLK_Freq_Calculate(void); // usart1,6

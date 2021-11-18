@@ -13,7 +13,13 @@
 
 #include "blackpill.h"
 
-
+/*
+ *
+ * API prototypes
+ *
+ */
+void  MCO_pin_config();
+void  system_clk_init();
 /*****************************************************************
  *  Number determines wait states
  *  0- 0 wait state
@@ -39,7 +45,6 @@
 
 
 
-void  MCO_pin_config();
-void  system_clk_init();
+
 
 #endif /* DRIVERS_INC_RCC_H_ */
