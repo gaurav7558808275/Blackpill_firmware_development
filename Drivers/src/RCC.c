@@ -38,7 +38,9 @@ void  MCO_pin_config()
 {
 		// From reference manual MCO1 Pin is PA8 setting PA8 now.
 	GPIOA_CLK_EN();
+	GPIOA->MODER &= ~(0XFFFF);
 	GPIOA->MODER |= (2<<16);    // ALTERNATE FUNCTION
+	GPIOA->OTYPER &=~(0XFFFF);
 	GPIOA->OTYPER &= ~(1<<8);	// SET AS PUSH PULL
 	GPIOA->OSPEEDR |= (3<<16);  // SPEED SET TO FAST
 	GPIOA->AFRH &= ~(0X0F<< 0); // ALTERNATE FUNCTION SET TO AF0 FOR MCO1, INFO FROM DATASHEET
@@ -82,10 +84,10 @@ void system_clk_init()
 
 	// TURN ON PLL
 	RCC->RCC_CR |= (1<<24);
-	while(RCC->RCC_CR &(1<<25)); // WAIT TILL PLLRDY BIT IS 1
+	while(!(RCC->RCC_CR &(1<<25))); // WAIT TILL PLLRDY BIT IS 1
 	// activating sysCLK as HSE
 	RCC->RCC_CFGR |= (2<<0);
-	while(!(RCC->RCC_CFGR & (2<<1)));
+	while(!(RCC->RCC_CFGR & (2<<0)));
 
 	// Clock to microcontroller
 	/*

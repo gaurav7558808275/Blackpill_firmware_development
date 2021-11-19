@@ -15,7 +15,7 @@
 I2C_Handle_t I2C_Handle;  // I2C handle for configuration
 GPIOx_Handle I2C_gpio;	  // gpio pin config for I2C
 GPIOx_Handle button;// Button initilaised.
-uint8_t Somedata[] = "Some data that is sent\n";
+uint8_t recievebuff[];
 /*
  * PB6 - SCL
  * PB9 - SDA
@@ -85,9 +85,8 @@ int main(void)
 	I2C_Clock_EN(I2C_Handle.pI2Cx);
 	while(1){
 		if(GPIO_Read_Pin(GPIOB,GPIO_PIN_13) == 1){
+			delay();
 			I2C_MasterSend(&I2C_Handle,Somedata,strlen((char *)Somedata),SLAVE_ADDR);
 		}
-
 	}
-
 }
