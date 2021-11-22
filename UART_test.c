@@ -10,11 +10,13 @@
 #include "blackpill.h"
 #include "UART.h"
 #include "gpio.h"
+#include "timer.h"
+#include "string.h"
 
 // handle init
 USART_Handle_t Uart;
 GPIOx_Handle GPIO;
-char msg[1024] = "Hello, the rest is ready";
+char msg[1024] = "Hello, the UART is ready";
 // creation of UART init
 
 void uart_init(void){
@@ -51,7 +53,9 @@ int main(void){
 	//UART start
 	USART_PeripheralControl(Uart.pUSARTx,ENABLE);
 	while(1){
-
+			while(!GPIO_Read_Pin(GPIOD, GPIO_PIN_12));
+			s_delay(1);
+			USART_SendData(&Uart, (uint8_t*)msg,strlen(msg));
 
 	}
 
