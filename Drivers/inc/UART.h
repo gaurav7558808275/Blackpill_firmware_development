@@ -102,7 +102,7 @@
  */
 typedef struct{
 	uint8_t USART_mode;
-	uint8_t USART_baud;
+	uint32_t USART_baud;
 	uint8_t	USART_no_ofstopbits;
 	uint8_t USART_wordlength;
 	uint8_t USART_paritybit;
@@ -130,7 +130,18 @@ typedef struct{
 /*
  * Peripheral clock setup
  */
+/*
+ * USART_Clock_Control() API
+ * pUSART -> Register handle init.
+ * SOR ->  ENABLE or DISABLE
+ */
 void USART_Clock_Control(USART_Reg_Def *pUSART , uint8_t SOR);
+/*
+ * puRPOSE : set and reset the UE bit ; USART_CR1 |= (1<< 13)
+ * pUSARTx ->  the handle created
+ * CMD -> ENABLE or DISABLE
+ *
+ */
 void USART_PeripheralControl(USART_Reg_Def *pUSARTx, uint8_t Cmd);
 /*
  * USART init and deinit
