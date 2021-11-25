@@ -530,6 +530,14 @@ typedef struct
 	uint32_t __vol USART_GTPR;
 
 }USART_Reg_Def;
+/*
+ * UART NVIC numbers
+ *
+ */
+#define IRQ_USART1 37
+#define IRQ_USART2 38
+#define IRQ_USART6 71
+
 
 #define USART1 	((USART_Reg_Def *)USART1_BASE_ADDR)
 #define USART2 	((USART_Reg_Def *)USART2_BASE_ADDR)
